@@ -1,6 +1,10 @@
 raw_data/
 https://github.com/shoval/jupyter-navbar.git/
 jupyter-navbar
-pretrained_models/
 __pycache__/
+
+
+pretrained_models/
 audio_data/
+results/
+audio_cache/
