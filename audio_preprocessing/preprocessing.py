@@ -18,7 +18,7 @@ def get_base_dir():
     #the preprocessing.py is located in
     #/home/romanz/code/RomanZhvanskiy/microphone_enhancer_gh/microphone_enhancer_gh/audio_preprocessing
     base_dir = os.path.dirname(os.path.realpath(__file__))
-    base_dir = base_dir.replace("/microphone_enhancer_gh/audio_preprocessing", "/raw_data/VCTK-Corpus")
+    base_dir = base_dir.replace("/microphone_enhancer_gh/audio_preprocessing", "/microphone_enhancer_gh/raw_data/VCTK-Corpus")
 
     return base_dir
 
