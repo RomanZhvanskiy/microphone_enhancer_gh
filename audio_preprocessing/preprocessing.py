@@ -401,7 +401,7 @@ def get_all_speech_as_one_mel(num_spectrograms=10000, num_speaker = 0, random_st
     """
 
     BASE_DIR = get_base_dir(working_in_google_colab=working_in_google_colab)
-    TXT_DIR = os.path.join(BASE_DIR, 'txt')
+    #TXT_DIR = os.path.join(BASE_DIR, 'txt')
     AUDIO_DIR = os.path.join(BASE_DIR, 'wav48')
     SAMPLING_RATE = 48000
     MAX_DURATION = 8
@@ -410,7 +410,7 @@ def get_all_speech_as_one_mel(num_spectrograms=10000, num_speaker = 0, random_st
 
     #check how many speakers are there in the folder
 
-    speaker_ids = sorted(os.listdir(TXT_DIR))
+    speaker_ids = sorted(os.listdir(AUDIO_DIR))
     #if(debug, working_in_google_colab = False):
     #    print (f"speaker_ids = {speaker_ids}")
 
