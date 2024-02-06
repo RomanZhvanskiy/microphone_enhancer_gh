@@ -21,7 +21,7 @@ def get_base_dir(debug = 0, working_in_google_colab = False):
         base_dir = os.path.dirname(os.path.realpath(__file__))
         base_dir = base_dir.replace("/microphone_enhancer_gh/audio_preprocessing", "/microphone_enhancer_gh/raw_data/VCTK-Corpus")
     else :
-        base_dir = "/content/gdrive/MyDrive/'Colab Notebooks'/data_audio/VCTK-Corpus"
+        base_dir = "/content/gdrive/MyDrive/Colab Notebooks/data_audio/VCTK-Corpus"
         if (debug): print (f"looking for training data here {base_dir}")
 
     return base_dir
