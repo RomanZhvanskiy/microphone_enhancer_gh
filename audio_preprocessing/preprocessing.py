@@ -12,18 +12,22 @@ import numpy as np # linear algebra
 from sklearn.utils import shuffle
 
 
-def get_base_dir():
-    #should get something like:
-    #/home/romanz/code/RomanZhvanskiy/microphone_enhancer_gh/raw_data/VCTK-Corpus
-    #the preprocessing.py is located in
-    #/home/romanz/code/RomanZhvanskiy/microphone_enhancer_gh/microphone_enhancer_gh/audio_preprocessing
-    base_dir = os.path.dirname(os.path.realpath(__file__))
-    base_dir = base_dir.replace("/microphone_enhancer_gh/audio_preprocessing", "/raw_data/VCTK-Corpus")
+def get_base_dir(debug = 0, working_in_google_colab = False):
+    if (not working_in_google_colab):
+        #should get something like:
+        #/home/romanz/code/RomanZhvanskiy/microphone_enhancer_gh/raw_data/VCTK-Corpus
+        #the preprocessing.py is located in
+        #/home/romanz/code/RomanZhvanskiy/microphone_enhancer_gh/microphone_enhancer_gh/audio_preprocessing
+        base_dir = os.path.dirname(os.path.realpath(__file__))
+        base_dir = base_dir.replace("/microphone_enhancer_gh/audio_preprocessing", "/microphone_enhancer_gh/raw_data/VCTK-Corpus")
+    else :
+        base_dir = "/content/gdrive/MyDrive/Colab Notebooks/data_audio/VCTK-Corpus"
+        if (debug): print (f"looking for training data here {base_dir}")
 
     return base_dir
 
 
-def get_speech(speaker_id = -1 , passage_id = None):
+def get_speech(speaker_id = -1 , passage_id = None, working_in_google_colab = False):
     """
     get_speech reads a .wav file into  a waveform `x` and also reads a sampling rate
 
@@ -41,7 +45,7 @@ def get_speech(speaker_id = -1 , passage_id = None):
 
     """
 
-    BASE_DIR = get_base_dir()
+    BASE_DIR = get_base_dir(working_in_google_colab=working_in_google_colab)
     AUDIO_DIR = os.path.join(BASE_DIR, 'wav48')
     SAMPLING_RATE = 48000 #22050 - old value
     MAX_DURATION = 8
@@ -72,7 +76,7 @@ def get_speech(speaker_id = -1 , passage_id = None):
 
 
 
-def plot_mel_spectrogram(spectrogram,sr,figsize=(8, 7), debug=0):
+def plot_mel_spectrogram(spectrogram,sr,figsize=(8, 7), debug=0, ):
     """
     plot_mel_spectrogram makes a plot of a spectrogram
 
@@ -368,7 +372,7 @@ def mel_spectrogram_remove_quiet_sounds (spectrogram, sr,  remove_below=0.01, de
 
 
 
-def get_all_speech_as_one_mel(num_spectrograms=10000, num_speaker = 0, random_state=1, debug = 0):
+def get_all_speech_as_one_mel(num_spectrograms=10000, num_speaker = 0, random_state=1, debug = 0, working_in_google_colab = False):
     """
     get_all_speech_as_one_mel reads all .wav files into  a waveform;
     converts each waveform into MEL spectrogram;
@@ -396,8 +400,8 @@ def get_all_speech_as_one_mel(num_spectrograms=10000, num_speaker = 0, random_st
 
     """
 
-    BASE_DIR = get_base_dir()
-    TXT_DIR = os.path.join(BASE_DIR, 'txt')
+    BASE_DIR = get_base_dir(working_in_google_colab=working_in_google_colab)
+    #TXT_DIR = os.path.join(BASE_DIR, 'txt')
     AUDIO_DIR = os.path.join(BASE_DIR, 'wav48')
     SAMPLING_RATE = 48000
     MAX_DURATION = 8
@@ -406,8 +410,8 @@ def get_all_speech_as_one_mel(num_spectrograms=10000, num_speaker = 0, random_st
 
     #check how many speakers are there in the folder
 
-    speaker_ids = sorted(os.listdir(TXT_DIR))
-    #if(debug):
+    speaker_ids = sorted(os.listdir(AUDIO_DIR))
+    #if(debug, working_in_google_colab = False):
     #    print (f"speaker_ids = {speaker_ids}")
 
 
@@ -476,7 +480,7 @@ def get_all_speech_as_one_mel(num_spectrograms=10000, num_speaker = 0, random_st
 
 def split_spectrogram_in_train_and_test (spectrogram,
                                          test_ratio = 0.2,
-                                         debug = 0):
+                                         debug = 0, working_in_google_colab = False):
 
     """
      split  spectrogram in train and test
@@ -507,9 +511,9 @@ def split_spectrogram_in_train_and_test (spectrogram,
     return train_sg, test_sg
 
 #test some of the methods
-def main():
+def main( working_in_google_colab = False):
     '''tester'''
-    print (f"get_base_dir() = {get_base_dir()}")
+    print (f"get_base_dir(working_in_google_colab) = {get_base_dir(working_in_google_colab=working_in_google_colab)}")
 
 if __name__ == '__main__':
     main()
