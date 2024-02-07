@@ -23,7 +23,7 @@ enhancer = st.radio("Select enhancer:",
                     ["speechbrain/sepformer-dns4-16k-enhancement",
                      "speechbrain/sepformer-wham16k-enhancement",
                      "NOT IMPLEMENTED YET: microphone_enhancer_gh"],
-                    index=1,
+                    index=0,
                     )
 st.write(enhancer, " is selected.")
 

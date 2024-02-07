@@ -45,10 +45,10 @@ async def upload_file(enhancer: str = Form(...), file: UploadFile = File(...)):
         f.write(file.file.read())
     #print(temp)
     if enhancer == "speechbrain/sepformer-wham16k-enhancement":
-        spec_aud_sr, cleaned_path = dns4_16k(temp.name, from_fs=False)
-    elif enhancer == "speechbrain/sepformer-dns4-16k-enhancement":
         spec_aud_sr, cleaned_path = wham_16k(temp.name, from_fs=False)
     elif enhancer == "speechbrain/sepformer-dns4-16k-enhancement":
+        spec_aud_sr, cleaned_path = dns4_16k(temp.name, from_fs=False)
+    elif enhancer == "NOT IMPLEMENTED YET: microphone_enhancer_gh":
         False #spec_aud_sr, cleaned_path = dns4_16k(temp.name, from_fs=False)
 
     #print(collected[2])
