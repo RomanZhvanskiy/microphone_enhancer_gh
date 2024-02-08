@@ -14,4 +14,8 @@ fastapi
 uvicorn
 python-multipart
 
-#ddd
+#for img_metrics.py
+scikit-image
+
+#other stuff
+numpy

@@ -17,12 +17,12 @@ from tensorflow.keras import callbacks
 from keras.callbacks import EarlyStopping
 from keras.callbacks import BackupAndRestore
 
-def train_model_on_data_from_file  (train_sg           ,
+def train_model  (train_sg           ,
                                     test_sg            ,
                                     degraded_train_sg  ,
                                     degraded_test_sg   ,
                                     model_type         ,
-                                    only_do_one_epoch  )  :
+                                    only_do_one_epoch=0  )  :
 
 #create the model
 
@@ -52,12 +52,16 @@ def train_model_on_data_from_file  (train_sg           ,
         delete_checkpoint=True
     )
 
+    if (only_do_one_epoch):
+        epochs=1
+    else:
+        epochs=1000
     history = simplest_model.fit( x= np.transpose(degraded_train_sg),
                                   y= np.transpose(train_sg),
                                batch_size=4,
                                validation_data=(np.transpose(degraded_test_sg), np.transpose(test_sg)),
-                               epochs=1000,
-                               verbose=1,
+                               epochs=epochs,
+                               verbose=0,
                                workers=24,
                                callbacks=[es,br],
                                use_multiprocessing=True)

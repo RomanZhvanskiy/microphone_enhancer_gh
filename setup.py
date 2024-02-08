@@ -5,13 +5,13 @@ with open("requirements.txt") as f:
     content = f.readlines()
 requirements = [x.strip() for x in content if "git+" not in x]
 
-setup(name='taxifare',
-      version="0.0.7",
-      description="TaxiFare Model (cloud_training)",
+setup(name='microphone enhancer',
+      version="0.0.4.1",
+      description="microphone enhancer backend",
       license="MIT",
       author="Le Wagon",
-      author_email="contact@lewagon.org",
-      #url="https://github.com/lewagon/taxi-fare",
+      #author_email="rz03@outlook.com",
+      #url="https://github.com/RomanZhvanskiy/microphone_enhancer_gh/",
       install_requires=requirements,
       packages=find_packages(),
       test_suite="tests",
