@@ -1,34 +1,41 @@
-folder structure                               
-├── microphone_enhancer_gh                     
-│   ├── audio_preprocessing                    
-│   │   ├── __init__.py                        
-│   │   ├── preprocessing_old                  
-│   │   ├── preprocessing_old2                 
-│   │   ├── preprocessing.py                   
-│   │   └── __pycache__                        
-│   │       ├── __init__.cpython-310.pyc       
-│   │       └── preprocessing.cpython-310.pyc  
-│   ├── README.md                              
-│   ├── setup (1).py:Zone.Identifier           
-│   ├── setup.py                               
-│   └── Speech_enhancement_6.ipynb             
-├── raw_data                                   
-│   └── VCTK-Corpus                            
-│		└── wav48                              
-│			├── p225                           
-│			├── p226                           
-│			├── p227                           
-│			├── p228                           
-│			├── p229                           
-│			├── p230                           
-│			├── p231                           
-│			├── p232                           
-│			├── p233                           
-│			├── p234                           
-│			├── p236                           
-│			├── p237                           
-│			├── p238                           
-│			├── p239                           
-│			├── p240                           
-│	                                           
-└── README.md                                  
+FOLDER STRUCTURE
+=======================
+├── Back_end
+│   ├── api
+│   │   ├── api_func.py
+│   │   ├── enhancer_api.py
+│   ├── audio_preprocessing
+│   │   ├── preprocessing.py         #conversion of waveforms to/from SG, degrade quality, etc
+│   ├── hugging_models
+│   │   ├── hugrestore.py
+│   ├── image_metrics
+│   │   ├── img_metrics.py           #image quality metrics
+│   ├── interface
+│   │   ├── audioenhancer_local.py   #this is where the functions are to be called by API
+│   ├── ml_logic
+│   │   ├── model.py                 #NN model is here
+│   ├── params.py                    #parameters (mostly folder names) here
+│
+├── Data
+│   ├── audio_data
+│   │   ├── audio_in                  #this is where bad quality input comes in
+│   │   └── audio_out                 #this is where good quality output comes out
+│   ├── postprocessed_training_data   #preprocessed data for training model
+│   │   ├── degraded_test_sg.sg
+│   │   ├── degraded_train_sg.sg
+│   │   ├── test_sg.sg
+│   │   └── train_sg.sg
+│   ├── pretrained_models             #where we save models
+│   └── raw_data                      #data for training model
+│       └── VCTK-Corpus
+├── Front_end
+│   └── test_api.py                   #web site
+├── jupyter_books
+│   ├── Copy of Speech_enhancement_6-checkpoint.ipynb
+│   └── hugging_conversions_test.ipynb
+├── Makefile
+├── README.md
+├── requirements.txt
+├── setup.py
+├── test_hugging_models.py
+└── Untitled.ipynb
