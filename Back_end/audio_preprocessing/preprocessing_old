@@ -1,0 +1,411 @@
+"""This module does kool stuff"""
+
+import librosa
+import torchaudio
+import os
+import matplotlib.pyplot as plt
+import numpy as np # linear algebra
+
+
+
+
+def get_speech(speaker_id = -1 , passage_id = None):
+    """
+    get_speech reads a .wav file into  a waveform `x` and also reads a sampling rate
+
+    Args:
+        speaker_id: integer. If not specified, a random speaker_id will be selected
+        passage_id: integer. If not specified, a random passage_id will be selected
+
+
+    Returns:
+        X is a 1-D numpy array containing a waveform
+        sr is a floating point number which provides sampling rate.
+
+    Example use:
+    x, sr  = get_speech()
+
+    """
+
+    BASE_DIR = "/home/romanz/code/RomanZhvanskiy/microphone_enhancer/VCTK-Corpus"
+    TXT_DIR = os.path.join(BASE_DIR, 'txt')
+    AUDIO_DIR = os.path.join(BASE_DIR, 'wav48')
+    SAMPLING_RATE = 22050
+    MAX_DURATION = 8
+    SR_DOWNSAMPLE = 2
+    LOAD_CHECKPOINT = False
+
+    speaker_ids = sorted(os.listdir(TXT_DIR))
+
+    if (speaker_id == -1):
+        speaker_id = np.random.choice(speaker_ids)
+
+    print('number of speakers is', len(speaker_ids))
+
+    if not passage_id:
+
+        speaker_id = np.random.choice(os.listdir(AUDIO_DIR))
+        print (f"speaker_id ={speaker_id}" )
+        speaker_passage_path = AUDIO_DIR + "/"+ speaker_id
+        passage_id = np.random.choice(os.listdir(speaker_passage_path))
+        print (f"passage_id ={passage_id}" )
+        speech_path = speaker_passage_path  + "/"+ passage_id
+
+    speech_path = os.path.join(AUDIO_DIR, speaker_id, passage_id + '.wav')
+    speech_path = speech_path.replace(".wav.wav",".wav")
+    x, sr = librosa.load(speech_path) # Load the audio as a waveform `x`
+    return x, sr
+
+
+
+
+def plot_mel_spectrogram(spectrogram,sr, debug=0):
+    """
+    plot_mel_spectrogram makes a plot of a spectrogram
+
+    Args:
+        spectrogram: spectrogram to be plotted (in the form of 2D numpy array,
+            where 1st dimension is n_mels, and 2nd dimensions is number of timesteps)
+        sr: sampling rate
+        debug=0: (optional) : if debug=1, messages will be printed during execution
+            which can be helpful for debugging
+
+
+    Returns:
+        nothing
+
+    Example use:
+    plot_mel_spectrogram(x,sr)
+
+    """
+    power_to_db = librosa.power_to_db(spectrogram, ref=np.max)
+    if (debug):
+        print(f"power_to_db = {power_to_db}")
+    plt.figure(figsize=(8, 7))
+    librosa.display.specshow(power_to_db,
+                            sr=sr,
+                            x_axis='time',
+                            y_axis='mel',
+                            cmap='magma',
+                            )
+    plt.colorbar(label='dB')
+    plt.title('Mel-Spectrogram (dB)', fontdict=dict(size=18))
+    plt.xlabel('Time', fontdict=dict(size=15))
+    plt.ylabel('Frequency', fontdict=dict(size=15))
+    plt.show()
+
+def plot_mel_spectrogram_of_waveform (y,sr):
+    """
+    plot_mel_spectrogram_of_waveform makes a plot of a spectrogram
+    which it obtains by converting waveform to spectrogram
+
+    Args:
+        y: waveform to be plotted (in the form of 1D numpy array)
+        sr: sampling rate
+
+
+    Returns:
+        nothing
+
+    Example use:
+    plot_mel_spectrogram(x,sr)
+
+    """
+    mel_signal = librosa.feature.melspectrogram(y=y,  sr=sr, n_mels=512, n_fft=2048)
+    spectrogram = np.abs(mel_signal)
+    plot_mel_spectrogram(spectrogram,sr, debug=0)
+
+def waveform_2_spectrogram (y,sr):
+    """
+    convert waveform to spectrogram
+
+    Args:
+        y: waveform to be converted (in the form of 1D numpy array)
+        sr: sampling rate
+
+
+    Returns:
+        spectrogram
+
+    Example use:
+    spectrogram = waveform_2_spectrogram(x,sr)
+
+    """
+    mel_signal = librosa.feature.melspectrogram(y=y,  sr=sr, n_mels=512, n_fft=2048)
+    spectrogram = np.abs(mel_signal)
+    return spectrogram
+
+def spectrogram_2_waveform (spectrogram,sr):
+    """
+    convert spectrogram to waveform
+
+    Args:
+        spectrogram: wavespectrogramform to be converted
+        sr: sampling rate
+
+
+    Returns:
+        waveform
+
+    Example use:
+        waveform = spectrogram_2_waveform(spectrogram,sr)
+
+    """
+
+    waveform = librosa.feature.inverse.mel_to_audio(spectrogram, sr=sr, n_fft=2048)
+    return waveform
+
+def mel_spectrogram_remove_frequency(spectrogram, sr, remove_above=100000, remove_below=0, debug=0):
+    """
+    degrade_mel_spectrogram_remove_frequency removes frequencies above remove_above and below remove_below (in hz)
+    which it obtains by converting waveform to spectrogram
+
+    Args:
+        spectrogram: spectrogram to be worked on (in the form of 2D numpy array)
+        sr: sampling rate
+        remove_above=100000: remove frequencies above this value
+        remove_below=0: remove frequencies below this value
+        debug=0: if debug=1, messages will be printed during execution
+            which can be helpful for debugging
+
+    Returns:
+        degraded_spectrogram
+
+    Example use:
+        degraded_spectrogram = mel_spectrogram_remove_frequency(
+            spectrogram,
+            sr,
+            remove_above=3000.0,
+            remove_below=100.0,
+            debug=0)
+
+    """
+
+    max_sampling_frequency = sr/2
+    if (debug): print (f"max_sampling_frequency = {max_sampling_frequency }")
+
+    n_mels = spectrogram.shape[0]
+    if (debug): print (f"n_mels = {n_mels }")
+
+    row_frequencies  = librosa.mel_frequencies(n_mels = n_mels, fmin=0.0, fmax = max_sampling_frequency)
+    if (debug): print (f"row_frequencies = {row_frequencies }")
+    row_frequencies_lst = row_frequencies.tolist()
+    if (debug): print (f"row_frequencies_lst = {row_frequencies_lst }")
+
+    #create array keep_frequencies where value 1 corresponds to keeping the frequency, and value 0 to dropping it
+    keep_frequencies = np.empty_like(row_frequencies)
+
+    for num_frequency, frequency in enumerate(row_frequencies_lst):
+        #print (f"num_frequency = {num_frequency}, frequency = {frequency}")
+        keep_frequencies[num_frequency] = 1
+        if (frequency < remove_below):
+            keep_frequencies[num_frequency] = 0
+        if (frequency > remove_above):
+            keep_frequencies[num_frequency] = 0
+
+    #multiply column - wise original spectrogram with keep_frequencies vector to zero out some frequencies
+    degraded_spectrogram  =  spectrogram*keep_frequencies[:, None]
+    #print (f"keep_frequencies = {keep_frequencies}")
+
+    return degraded_spectrogram
+
+def sig(x):
+ return 1/(1 + np.exp(-x))
+
+def mel_spectrogram_add_noise(spectrogram, sr, relative_noise_level=0.1, add_above=0, add_below=100000, fade_width = 0.5,debug=0):
+    """
+    degrade_mel_spectrogram_remove_frequency removes frequencies above remove_above and below remove_below (in hz)
+    which it obtains by converting waveform to spectrogram
+
+    Args:
+        spectrogram: spectrogram to be worked on (in the form of 2D numpy array)
+        sr: sampling rate
+        relative_noise_level: the level of added noise as a fraction of mean loudness in the spectrogram
+        add_above=0: add noize above this value
+        add_below=100000:      add noize below this value
+        fade_width=0.5: how wide should be noize fade
+        debug=0: if debug=1, messages will be printed during execution
+            which can be helpful for debugging
+
+    Returns:
+        degraded_spectrogram
+
+    Example use:
+        degraded_spectrogram = mel_spectrogram_add_noise(
+            spectrogram,
+            sr,
+            add_above=100.0,
+            add_below=3000.0,
+            relative_noise_level=0.00001,
+            debug=0)
+
+    """
+    mean_loudness = spectrogram.mean()
+    noise_level = mean_loudness*relative_noise_level
+    max_sampling_frequency = sr/2
+    n_mels = spectrogram.shape[0]
+    row_frequencies  = librosa.mel_frequencies(n_mels = n_mels, fmin=0.0, fmax = max_sampling_frequency)
+    row_frequencies_lst = row_frequencies.tolist()
+
+    #create array noise_frequencies where value 1 corresponds to keeping the frequency, and value 0 to dropping it
+
+    noise_spectrogram =   np.zeros_like(spectrogram) # empty spectrogram with frequency
+
+
+    for num_frequency, frequency in enumerate(row_frequencies_lst):
+        #print (f"num_frequency = {num_frequency}, frequency = {frequency}")
+        if (frequency >= add_above and frequency <= add_below):
+            #make  a graduall "activation" with sigmoid
+            how_far_above_noize_floor = frequency - add_above
+            how_far_below_noize_ceiling = add_below - frequency
+            activation_above = (sig(how_far_above_noize_floor/(add_above*fade_width))-0.5)
+            activation_below = (sig(how_far_below_noize_ceiling/(add_below*fade_width)) - 0.5)
+            noise_spectrogram[num_frequency, :] = noise_level*activation_above*activation_below
+
+
+
+
+    degraded_spectrogram  =  spectrogram + noise_spectrogram
+
+
+    if (debug):
+        print (f"mean_loudness         = {mean_loudness        }")
+        print (f"noise_level           = {noise_level         }")
+        print (f"degraded_spectrogram  = {degraded_spectrogram}")
+
+    return degraded_spectrogram
+
+
+def mel_spectrogram_remove_quiet_sounds (spectrogram, sr,  remove_below=0.01, debug=0):
+    """
+    degrade_mel_spectrogram_remove_frequency removes frequencies above remove_above and below remove_below (in hz)
+    which it obtains by converting waveform to spectrogram
+
+    Args:
+        spectrogram: spectrogram to be worked on (in the form of 2D numpy array)
+        sr: sampling rate
+        remove_below: relative (to average) loudness of sounds which will be removed
+        debug=0: if debug=1, messages will be printed during execution
+            which can be helpful for debugging
+
+    Returns:
+        degraded_spectrogram
+
+    Example use:
+        degraded_spectrogram = mel_spectrogram_add_noise(
+            spectrogram,
+            sr,
+            remove_below=0.01,
+            debug=0)
+
+    """
+
+
+    mean_loudness = spectrogram.mean()
+    cut_off_below_this_intensity = mean_loudness*remove_below
+    if (debug):
+        print (f"spectrogram          = {spectrogram        }")
+        print (f"sr          = {sr        }")
+        print (f"remove_below          = {remove_below        }")
+        print (f"cut_off_below_this_intensity          = {cut_off_below_this_intensity        }")
+
+    #create array noise_frequencies where value 1 corresponds to keeping the frequency, and value 0 to dropping it
+
+    degraded_spectrogram = spectrogram
+    degraded_spectrogram[degraded_spectrogram < cut_off_below_this_intensity] = 0
+
+    if (debug):
+        print (f"mean_loudness          = {mean_loudness        }")
+        print (f"degraded_spectrogram  = {degraded_spectrogram}")
+
+    return degraded_spectrogram
+
+
+
+def get_all_speech_as_mels(num_spectrograms=100, num_speaker = 0, random_state=1, debug = 0):
+    """
+    get_all_speech_as_mels reads all .wav files into  a waveform;
+    convert the waveform into MEL spectrogram;
+    take only the last 10 timesteps of the MEL spectrogram
+
+    Args:
+        num_spectrograms: integer. If not specified, 100 randomly selected spectrograms will be returned
+        num_speaker: integer. If negative, all speakers will be selected, otherwise only samples belonging
+        to the numbered speaker will be returned
+        random_state: integer. this will fix the random spectrogram selection
+        debug=0: (optional) : if debug=1, messages will be printed during execution
+            which can be helpful for debugging
+
+
+
+    Returns:
+        X is a nD numpy array containing a spectrograms with the following dimensions (example):
+        (100, 512, 10, 2)
+        where
+            100 - number of spectrograms
+            512 - number of spectral bands in each spectrogram
+            10  - number of timesteps in each spectrogram
+            2   - speaker number and recording number
+
+        sr is a floating point number which provides sampling rate.
+
+    Example use:
+    x, sr  = get_speech()
+
+    """
+
+    BASE_DIR = "/home/romanz/code/RomanZhvanskiy/microphone_enhancer/VCTK-Corpus"
+    TXT_DIR = os.path.join(BASE_DIR, 'txt')
+    AUDIO_DIR = os.path.join(BASE_DIR, 'wav48')
+    SAMPLING_RATE = 22050
+    MAX_DURATION = 8
+    SR_DOWNSAMPLE = 2
+    LOAD_CHECKPOINT = False
+
+    speaker_ids = sorted(os.listdir(TXT_DIR))
+    if(debug):
+        print (f"speaker_ids = {speaker_ids}")
+
+    dict_speakers = {}
+    for speaker_n, speaker_id in enumerate(speaker_ids):
+        #dict_speakers.append({speaker_n:speaker_id})
+        dict_speakers.update({speaker_n:speaker_id})
+
+    if not (num_speaker in dict_speakers):
+        print(f"num_speaker = {num_speaker} is not in data. Please select a different num_speaker")
+        return
+    else:
+        print(f"num_speaker = {num_speaker}; folder = {dict_speakers[num_speaker]}")
+
+
+
+    if(debug):
+        print (f"dict_speakers = {dict_speakers}")
+
+    speaker_passage_path = AUDIO_DIR + "/"+ dict_speakers[num_speaker]
+
+    if(debug):
+        print (f"speaker_passage_path = {speaker_passage_path}")
+
+    for i in range(1, num_spectrograms):
+        get_speech(speaker_id = -1 , passage_id = None):
+
+
+    #if (speaker_id == -1):
+    #    speaker_id = np.random.choice(speaker_ids)
+#
+    #print('number of speakers is', len(speaker_ids))
+#
+    #if not passage_id:
+#
+    #    speaker_id = np.random.choice(os.listdir(AUDIO_DIR))
+    #    print (f"speaker_id ={speaker_id}" )
+    #    speaker_passage_path = AUDIO_DIR + "/"+ speaker_id
+    #    passage_id = np.random.choice(os.listdir(speaker_passage_path))
+    #    print (f"passage_id ={passage_id}" )
+    #    speech_path = speaker_passage_path  + "/"+ passage_id
+#
+    #speech_path = os.path.join(AUDIO_DIR, speaker_id, passage_id + '.wav')
+    #speech_path = speech_path.replace(".wav.wav",".wav")
+    #x, sr = librosa.load(speech_path) # Load the audio as a waveform `x`
+    #return x, sr
