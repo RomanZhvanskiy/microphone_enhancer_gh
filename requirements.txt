@@ -8,3 +8,10 @@ librosa
 # hugging face speech-to-speech model module
 speechbrain
 torchaudio
+
+# api
+fastapi
+uvicorn
+python-multipart
+
+#ddd
