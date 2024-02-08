@@ -1,42 +1,41 @@
-FOLDER STRUCTURE                                                                                  #
-=======================                                                                           #
-├── Back_end                                                                                      #
-│   ├── api                                                                                       #
-│   │   ├── api_func.py                                                                           #
-│   │   ├── enhancer_api.py                                                                       #
-│   ├── audio_preprocessing                                                                       #
-│   │   ├── preprocessing.py         #conversion of waveforms to/from SG, degrade quality, etc    #
-│   ├── hugging_models                                                                            #
-│   │   ├── hugrestore.py                                                                         #
-│   ├── image_metrics                                                                             #
-│   │   ├── img_metrics.py           #image quality metrics                                       #
-│   ├── interface                                                                                 #
-│   │   ├── audioenhancer_local.py   #this is where the functions are to be called by API         #
-│   ├── ml_logic                                                                                  #
-│   │   ├── model.py                 #NN model is here                                            #
-│   ├── params.py                    #parameters (mostly folder names) here                       #
-│                                                                                                 #
-├── Data                                                                                          #
-│   ├── audio_data                                                                                #
-│   │   ├── audio_in                  #this is where bad quality input comes in                   #
-│   │   └── audio_out                 #this is where good quality output comes out                #
-│   ├── postprocessed_training_data   #preprocessed data for training model                       #
-│   │   ├── degraded_test_sg.sg                                                                   #
-│   │   ├── degraded_train_sg.sg                                                                  #
-│   │   ├── test_sg.sg                                                                            #
-│   │   └── train_sg.sg                                                                           #
-│   ├── pretrained_models             #where we save models                                       #
-│   └── raw_data                      #data for training model                                    #
-│       └── VCTK-Corpus                                                                           #
-├── Front_end                                                                                     #
-│   └── test_api.py                   #web site                                                   #
-├── jupyter_books                                                                                 #
-│   ├── Copy of Speech_enhancement_6-checkpoint.ipynb                                             #
-│   └── hugging_conversions_test.ipynb                                                            #
-├── Makefile                                                                                      #
-├── README.md                                                                                     #
-├── requirements.txt                                                                              #
-├── setup.py                                                                                      #
-├── test_hugging_models.py                                                                        #
-└── Untitled.ipynb                                                                                #
-
+FOLDER STRUCTURE                                                                                  <br />
+=======================                                                                           <br />
+├── Back_end                                                                                      <br />
+│   ├── api                                                                                       <br />
+│   │   ├── api_func.py                                                                           <br />
+│   │   ├── enhancer_api.py                                                                       <br />
+│   ├── audio_preprocessing                                                                       <br />
+│   │   ├── preprocessing.py         #conversion of waveforms to/from SG, degrade quality, etc    <br />
+│   ├── hugging_models                                                                            <br />
+│   │   ├── hugrestore.py                                                                         <br />
+│   ├── image_metrics                                                                             <br />
+│   │   ├── img_metrics.py           #image quality metrics                                       <br />
+│   ├── interface                                                                                 <br />
+│   │   ├── audioenhancer_local.py   #this is where the functions are to be called by API         <br />
+│   ├── ml_logic                                                                                  <br />
+│   │   ├── model.py                 #NN model is here                                            <br />
+│   ├── params.py                    #parameters (mostly folder names) here                       <br />
+│                                                                                                 <br />
+├── Data                                                                                          <br />
+│   ├── audio_data                                                                                <br />
+│   │   ├── audio_in                  #this is where bad quality input comes in                   <br />
+│   │   └── audio_out                 #this is where good quality output comes out                <br />
+│   ├── postprocessed_training_data   #preprocessed data for training model                       <br />
+│   │   ├── degraded_test_sg.sg                                                                   <br />
+│   │   ├── degraded_train_sg.sg                                                                  <br />
+│   │   ├── test_sg.sg                                                                            <br />
+│   │   └── train_sg.sg                                                                           <br />
+│   ├── pretrained_models             #where we save models                                       <br />
+│   └── raw_data                      #data for training model                                    <br />
+│       └── VCTK-Corpus                                                                           <br />
+├── Front_end                                                                                     <br />
+│   └── test_api.py                   #web site                                                   <br />
+├── jupyter_books                                                                                 <br />
+│   ├── Copy of Speech_enhancement_6-checkpoint.ipynb                                             <br />
+│   └── hugging_conversions_test.ipynb                                                            <br />
+├── Makefile                                                                                      <br />
+├── README.md                                                                                     <br />
+├── requirements.txt                                                                              <br />
+├── setup.py                                                                                      <br />
+├── test_hugging_models.py                                                                        <br />
+└── Untitled.ipynb                                                                                <br />
