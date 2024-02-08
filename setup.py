@@ -1,48 +1,20 @@
-from __future__ import print_function
-import os
-import shutil
+from setuptools import find_packages
+from setuptools import setup
 
-to_copy = ['navbar.css', 'navbar.js']
-text_insert = [
-    ('custom.js', '$.getScript("/custom/jupyter-navbar/navbar.js");'),
-    ('custom.css', '@import url("jupyter-navbar/navbar.css");'),
-]
+with open("requirements.txt") as f:
+    content = f.readlines()
+requirements = [x.strip() for x in content if "git+" not in x]
 
-def line_in_file(content, text):
-    """Test if row of text exists in file content"""
-    for line in content.splitlines():
-        line = line.strip()
-        if line == code:
-            return True
-    return False
-
-# Define paths
-home = os.path.expanduser("~")
-custom = os.path.join(home, '.jupyter/custom')
-navbar = os.path.join(custom, 'jupyter-navbar')
-
-print('Creating directory structure')
-if not os.path.exists(navbar):
-    os.makedirs(navbar)
-
-# Copy JS and CSS file into subdir of custom
-print('Copying necessary files')
-for name in to_copy:
-    target = os.path.join(navbar, name)
-    shutil.copyfile(name, target)
-
-# Append code to custom.js and custom.css to run navbar
-print('Modifying custom.js and custom.css')
-for name, code in text_insert:
-    path = os.path.join(custom, name)
-
-    content = ''
-    if os.path.exists(path):
-        with open(path) as f:
-            content = f.read()
-
-    if not line_in_file(content, code):
-        with open(path, 'w+') as f:
-            f.write('%s\n\n%s' % (code, content))  # Append to start of file
-
-print('Setup complete successfully.')
+setup(name='taxifare',
+      version="0.0.7",
+      description="TaxiFare Model (cloud_training)",
+      license="MIT",
+      author="Le Wagon",
+      author_email="contact@lewagon.org",
+      #url="https://github.com/lewagon/taxi-fare",
+      install_requires=requirements,
+      packages=find_packages(),
+      test_suite="tests",
+      # include_package_data: to install data from MANIFEST.in
+      include_package_data=True,
+      zip_safe=False)

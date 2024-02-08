@@ -66,7 +66,7 @@ def train_model_on_data_from_file  (train_sg           ,
     return model, history
 
 
-def save_model                     (model, filepath):
+def save_model                     (model, history, filepath):
     models.save_model(model, filepath)
 
 def load_model                     (model, filepath):
