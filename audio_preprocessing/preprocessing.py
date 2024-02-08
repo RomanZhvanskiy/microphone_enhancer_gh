@@ -27,54 +27,9 @@ def get_base_dir(debug = 0, working_in_google_colab = False):
     return base_dir
 
 
-def get_speech(speaker_id = -1 , passage_id = None, working_in_google_colab = False):
-    """
-    get_speech reads a .wav file into  a waveform `x` and also reads a sampling rate
-
-    Args:
-        speaker_id: integer. If not specified, a random speaker_id will be selected
-        passage_id: integer. If not specified, a random passage_id will be selected
-
-
-    Returns:
-        X is a 1-D numpy array containing a waveform
-        sr is a floating point number which provides sampling rate.
-
-    Example use:
-    x, sr  = get_speech()
-
-    """
-
-    BASE_DIR = get_base_dir(working_in_google_colab=working_in_google_colab)
-    AUDIO_DIR = os.path.join(BASE_DIR, 'wav48')
-    SAMPLING_RATE = 48000 #22050 - old value
-    MAX_DURATION = 8
-    SR_DOWNSAMPLE = 2
-    LOAD_CHECKPOINT = False
-
-    speaker_ids = sorted(os.listdir(AUDIO_DIR))
-
-    if (speaker_id == -1):
-        speaker_id = np.random.choice(speaker_ids)
-
-    print('number of speakers is', len(speaker_ids))
-
-    if not passage_id:
-
-        speaker_id = np.random.choice(os.listdir(AUDIO_DIR))
-        print (f"speaker_id ={speaker_id}" )
-        speaker_passage_path = AUDIO_DIR + "/"+ speaker_id
-        passage_id = np.random.choice(os.listdir(speaker_passage_path))
-        print (f"passage_id ={passage_id}" )
-        speech_path = speaker_passage_path  + "/"+ passage_id
-
-    speech_path = os.path.join(AUDIO_DIR, speaker_id, passage_id + '.wav')
-    speech_path = speech_path.replace(".wav.wav",".wav")
-    x, sr = librosa.load(speech_path, sr=SAMPLING_RATE) # Load the audio as a waveform `x`
-    return x, sr
-
-
-
+###############################################################################
+#                    plotting subroutines
+###############################################################################
 
 def plot_mel_spectrogram(spectrogram,sr,figsize=(8, 7), debug=0, ):
     """
@@ -133,7 +88,9 @@ def plot_mel_spectrogram_of_waveform (y,sr):
     mel_signal = librosa.feature.melspectrogram(y=y,  sr=sr, n_mels=256, n_fft=2048)
     spectrogram = np.abs(mel_signal)
     plot_mel_spectrogram(spectrogram,sr, debug=0)
-
+###############################################################################
+#                    conversion between wav and sg subroutines
+###############################################################################
 def waveform_2_spectrogram (y,sr):
     """
     convert waveform to spectrogram
@@ -177,6 +134,9 @@ def spectrogram_2_waveform (spectrogram,sr):
     waveform = librosa.feature.inverse.mel_to_audio(spectrogram, sr=sr, n_fft=2048)
     return waveform
 
+###############################################################################
+#                    writing to file subroutines
+###############################################################################
 
 def spectrogram_2_file (spectrogram,sr,filename="test_sound.wav"):
     import numpy as np
@@ -205,6 +165,34 @@ def spectrogram_2_file (spectrogram,sr,filename="test_sound.wav"):
 
     return
 
+def waveform_2_file (waveform1,sr,filename="test_sound.wav"):
+    import numpy as np
+    import soundfile as sf
+
+    """
+    write spectrogram to file
+
+    Args:
+        waveform1: waveform to be written to file
+        sr: sampling rate
+        filename: where to write the file
+
+
+    Returns:
+        nothing
+
+    Example use:
+    spectrogram = spectrogram_2_file (spectrogram,sr,filename)
+
+    """
+    #write waveform to file
+    sf.write(filename, waveform1, sr, subtype='PCM_24')
+
+    return
+
+###############################################################################
+#                    degrade quality subroutines
+###############################################################################
 def mel_spectrogram_remove_frequency(spectrogram, sr, remove_above=100000, remove_below=0, debug=0):
     """
     degrade_mel_spectrogram_remove_frequency removes frequencies above remove_above and below remove_below (in hz)
@@ -370,6 +358,107 @@ def mel_spectrogram_remove_quiet_sounds (spectrogram, sr,  remove_below=0.01, de
 
     return degraded_spectrogram
 
+def degrade_quaity(spectrogram, sr, upper_limit=3000.0, lower_limit=100.0, insensitive_level = 0.5,relative_noise_level=0.1, debug=0):
+    degraded_spectrogram = pp.mel_spectrogram_remove_frequency(
+            spectrogram,
+            sr,
+            remove_above=upper_limit,
+            remove_below=lower_limit,
+            debug=debug)
+
+
+    #remove quiet sounds  (our simulated bad microphone cannot capture quiet sounds)
+    degraded_spectrogram = pp.mel_spectrogram_remove_quiet_sounds (
+            degraded_spectrogram,
+            sr,
+            remove_below=insensitive_level,
+            debug=debug)
+
+    #add noise (our simulated bad microphone also captures noize)
+    degraded_spectrogram = pp.mel_spectrogram_add_noise(degraded_spectrogram,
+            sr,
+            relative_noise_level=relative_noise_level,
+            add_above=lower_limit,
+            add_below=upper_limit,
+            debug=debug)
+    return degraded_spectrogram
+
+###############################################################################
+#                    subroutines to load data from HDD
+###############################################################################
+
+def load_wav (where_to_find_audio):
+    """
+    load_wav reads a .wav file into  a waveform `x` and also reads a sampling rate
+
+    Args:
+        where_to_find_audio: string
+
+
+    Returns:
+        X is a 1-D numpy array containing a waveform
+        sr is a floating point number which provides sampling rate.
+
+    Example use:
+    x, sr  = get_speech()
+
+    """
+
+    speech_path = where_to_find_audio
+    SAMPLING_RATE = 48000 #22050 - old value
+    x, sr = librosa.load(speech_path, sr=SAMPLING_RATE) # Load the audio as a waveform `x`
+    return x, sr
+
+
+
+
+def get_speech(speaker_id = -1 , passage_id = None, working_in_google_colab = False):
+    """
+    get_speech reads a .wav file into  a waveform `x` and also reads a sampling rate
+
+    Args:
+        speaker_id: integer. If not specified, a random speaker_id will be selected
+        passage_id: integer. If not specified, a random passage_id will be selected
+
+
+    Returns:
+        X is a 1-D numpy array containing a waveform
+        sr is a floating point number which provides sampling rate.
+
+    Example use:
+    x, sr  = get_speech()
+
+    """
+
+    BASE_DIR = get_base_dir(working_in_google_colab=working_in_google_colab)
+    AUDIO_DIR = os.path.join(BASE_DIR, 'wav48')
+    SAMPLING_RATE = 48000 #22050 - old value
+    MAX_DURATION = 8
+    SR_DOWNSAMPLE = 2
+    LOAD_CHECKPOINT = False
+
+    speaker_ids = sorted(os.listdir(AUDIO_DIR))
+
+    if (speaker_id == -1):
+        speaker_id = np.random.choice(speaker_ids)
+
+    print('number of speakers is', len(speaker_ids))
+
+    if not passage_id:
+
+        speaker_id = np.random.choice(os.listdir(AUDIO_DIR))
+        print (f"speaker_id ={speaker_id}" )
+        speaker_passage_path = AUDIO_DIR + "/"+ speaker_id
+        passage_id = np.random.choice(os.listdir(speaker_passage_path))
+        print (f"passage_id ={passage_id}" )
+        speech_path = speaker_passage_path  + "/"+ passage_id
+
+    speech_path = os.path.join(AUDIO_DIR, speaker_id, passage_id + '.wav')
+    speech_path = speech_path.replace(".wav.wav",".wav")
+    x, sr = librosa.load(speech_path, sr=SAMPLING_RATE) # Load the audio as a waveform `x`
+    return x, sr
+
+
 
 
 def get_all_speech_as_one_mel(num_spectrograms=10000, num_speaker = 0, random_state=1, debug = 0, working_in_google_colab = False):
@@ -478,6 +567,10 @@ def get_all_speech_as_one_mel(num_spectrograms=10000, num_speaker = 0, random_st
     return total_sg, sr
 
 
+###############################################################################
+#                    train test split
+###############################################################################
+
 def split_spectrogram_in_train_and_test (spectrogram,
                                          test_ratio = 0.2,
                                          debug = 0, working_in_google_colab = False):
@@ -509,6 +602,7 @@ def split_spectrogram_in_train_and_test (spectrogram,
     test_sg = spectrogram.copy()
     test_sg = test_sg[:, n_timesteps_train:n_timesteps]
     return train_sg, test_sg
+
 
 #test some of the methods
 def main( working_in_google_colab = False):
