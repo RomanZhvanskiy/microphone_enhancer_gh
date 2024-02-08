@@ -17,9 +17,13 @@ run_evaluate:
 
 run_all: run_preprocess run_train run_pred run_evaluate
 
-
-## TESTS ##
-api_test:
-	uvicorn api.enhancer_api:app --reload &
-	sleep 5
-	streamlit run test_api.py
+## REMOVE UNNECESSARY FILES & FOLDERS ##
+clean:
+#	@rm -f */version.txt
+#	@rm -f .coverage
+	@rm -f */.ipynb_checkpoints
+#	@rm -Rf build
+	@rm -Rf */__pycache__
+	@rm -Rf */*.pyc
+	@rm -Rf audio_cache/*
+#	@rm -Rf results
