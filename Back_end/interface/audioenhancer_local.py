@@ -27,33 +27,48 @@ from keras.callbacks import BackupAndRestore
 #                     FOLDER STRUCTURE
 #############################################################
 #
-#├── audio_preprocessing
-#│   ├── __init__.py
-#│   ├── preprocessing.py
-#│   └── __pycache__
-#├── hugging_models
-#│   ├── hugrestore.py
-#│   └── __pycache__
-#├── image_metrics
-#│   ├── img_metrics.py
-#│   └── __init__.py
-#├── interface
-#│   ├── audioenhancer_local.py <<<<<<<<<<<<< THIS LIBRARY
-#│   ├── __init__.py
-#│   └── params.py
-#├── pretrained_models
-#│   ├── sepformer-dns4-16k-enhancement
-#│   └── sepformer-wham16k-enhancement
-#├── raw_data
+#FOLDER STRUCTURE
+#=======================
+#├── Back_end
+#│   ├── api
+#│   │   ├── api_func.py
+#│   │   ├── enhancer_api.py
+#│   ├── audio_preprocessing
+#│   │   ├── preprocessing.py #conversion of waveforms to/from SG, degrade quality, etc
+#│   ├── hugging_models
+#│   │   ├── hugrestore.py
+#│   ├── image_metrics
+#│   │   ├── img_metrics.py #image quality metrics
+#│   ├── interface
+#│   │   ├── audioenhancer_local.py #this is where the functions are to be called by API
+#│   ├── ml_logic
+#│   │   ├── model.py #NN model is here
+#│   ├── params.py #parameters (mostly folder names) here
+#│
+#├── Data
+#│   ├── audio_data
+#│   │   ├── audio_in #this is where bad quality input comes in
+#│   │   └── audio_out #this is where good quality output comes out
+#│   ├── postprocessed_training_data #preprocessed data for training model
+#│   │   ├── degraded_test_sg.sg
+#│   │   ├── degraded_train_sg.sg
+#│   │   ├── test_sg.sg
+#│   │   └── train_sg.sg
+#│   ├── pretrained_models #where we save models
+#│   └── raw_data #data for training model
 #│   └── VCTK-Corpus
+#├── Front_end
+#│   └── test_api.py #web site
+#├── jupyter_books
+#│   ├── Copy of Speech_enhancement_6-checkpoint.ipynb
+#│   └── hugging_conversions_test.ipynb
+#├── Makefile
 #├── README.md
 #├── requirements.txt
-#├── ml_logic
-#│  ├── __init__.py
-#│  └── model.py
-
-
-
+#├── setup.py
+#├── test_hugging_models.py
+#└── Untitled.ipynb
+#
 #
 # Adds higher directory to python modules path
 import sys
@@ -64,16 +79,19 @@ sys.path.append(
 
 sys.path.append("..") # Adds higher directory to python modules path.
 
+print (f"sys.path = {sys.path}")
+
 from audio_preprocessing import preprocessing   as pp              #ok
 from image_metrics import img_metrics           as im              #ok
 from hugging_models import hugrestore           as hr              #ok
 
 #commented out below for debugging
-#from ml_logic import train_model, \
-#                     save_model,                    \
-#                     load_model,                    \
-#                     model_predict
-#
+from ml_logic.model  import train_model, \
+                     save_model,                    \
+                     load_model,                    \
+                     model_predict
+
+
 
 
 from params import *
@@ -128,7 +146,7 @@ def train(debug=0, only_do_one_epoch=0) -> None:
         where_to_save_training_data = os.path.dirname(os.path.realpath(__file__))
         where_to_save_training_data = where_to_save_training_data.replace(\
                        "/microphone_enhancer_gh/Back_end/interface",     \
-                       f"/microphone_enhancer_gh/{TRAINING_DATA_SUBFOLDER}")
+                       f"/microphone_enhancer_gh/{POSTPROCESSED_TRAINING_DATA_SUBFOLDER}")
 
         train_sg           = np.genfromtxt(f"{where_to_save_training_data}/train_sg.sg",          delimiter=',')
         test_sg            = np.genfromtxt(f"{where_to_save_training_data}/test_sg.sg",           delimiter=',')
@@ -136,6 +154,8 @@ def train(debug=0, only_do_one_epoch=0) -> None:
         degraded_test_sg   = np.genfromtxt(f"{where_to_save_training_data}/degraded_test_sg.sg",  delimiter=',')
 
         #train the model
+
+
         model, history = train_model(
                             train_sg          = train_sg          ,
                             test_sg           = test_sg           ,
@@ -153,11 +173,17 @@ def train(debug=0, only_do_one_epoch=0) -> None:
         save_model(model, history, where_to_save_trained_model)
 
         # print the last value of the metric
-        display_metric = np.min(history.history['display_metric'])
+        #print (f"history.history.keys() = {history.history.keys()}")
+        display_loss = np.min(history.history['loss'])
+        display_mse = np.min(history.history['mse'])
+        display_val_loss = np.min(history.history['val_loss'])
+        display_val_mse = np.min(history.history['val_mse'])
+
+
         if (only_do_one_epoch):
-            print (f"model has been successfully trained for one epoch. Achieved accuracy metric = {display_metric}")
+            print (f"model has been successfully trained for one epoch. Achieved validation loss = {display_val_loss}")
         else:
-            print (f"model has been successfully trained. Achieved accuracy metric = {display_metric}")
+            print (f"model has been successfully trained. Achieved validation loss = {display_val_loss}")
 
 
 
@@ -181,7 +207,12 @@ def pred(test_string="none", debug=0) -> None:
                    "/microphone_enhancer_gh/Back_end/interface",     \
                    f"/microphone_enhancer_gh/{MODEL_SUBFOLDER}")
 
-    model = load_model(model, where_to_save_trained_model)
+    if not os.path.exists(where_to_save_trained_model):
+        print(f'The file {where_to_save_trained_model} does not exist. Please train the model before making predictions.')
+        return
+
+
+    model = load_model(where_to_save_trained_model)
 
     #load the bad quality SG from HDD
 
@@ -190,6 +221,12 @@ def pred(test_string="none", debug=0) -> None:
     where_to_find_bad_audio = where_to_find_bad_audio.replace(\
                    "/microphone_enhancer_gh/Back_end/interface",     \
                    f"/microphone_enhancer_gh/{BAD_QUALITY_FILE}")
+
+    if not os.path.exists(where_to_find_bad_audio):
+        print(f'The file {where_to_find_bad_audio} does not exist. Please provide input to make predictions.')
+        return
+
+
 
     bad_audio, sr = pp.load_wav(where_to_find_bad_audio)
     #convert bad_audio to spectrogram
@@ -212,7 +249,7 @@ def pred(test_string="none", debug=0) -> None:
                    "/microphone_enhancer_gh/Back_end/interface",     \
                    f"/microphone_enhancer_gh/{GOOD_QUALITY_FILE}")
 
-    pp.waveform_2_file (good_audio,sr,filename="where_to_find_good_audio")
+    pp.waveform_2_file (good_audio,sr,filename=where_to_find_good_audio)
 
 
 #test some of the methods
