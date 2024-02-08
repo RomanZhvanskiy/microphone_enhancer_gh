@@ -1,14 +1,19 @@
 raw_data/
 https://github.com/shoval/jupyter-navbar.git/
 jupyter-navbar
+
 __pycache__/
 
 
-pretrained_models/
-audio_data/
+pretrained_models/*
+
+
+audio_data/audio_in/*
+audio_data/audio_out/*
+autoencoder_*
 *.wav
-results/
-audio_cache/
+results/*
+audio_cache/*
 
 
 # Standard python ignores
@@ -58,3 +63,4 @@ secrets.toml
 
 # User defined extras
 # Complete to your desire
+
