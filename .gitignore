@@ -5,11 +5,23 @@ __pycache__/
 
 # Data in the package
 # Add files you want to include in the git repo using `git add -f file_name`
-#remove all files in Data but keep the folder stucture
-Data/**
-!Data/**/
-!Data/**/.gitkeep
 
+#the lines below keep the folder structure but not the files
+# .placeholder file is needed to make it work
+Data/pretrained_models/*
+!Data/pretrained_models/.placeholder
+
+Data/postprocessed_training_data/*
+!Data/postprocessed_training_data/.placeholder
+
+Data/audio_data/audio_in/*
+!Data/audio_data/audio_in/.placeholder
+
+Data/audio_data/audio_out/*
+!Data/audio_data/audio_out/.placeholder
+
+Data/raw_data/*
+!Data/postprocessedraw_data_training_data/.placeholder
 
 autoencoder_*
 *.wav
