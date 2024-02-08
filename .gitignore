@@ -21,7 +21,7 @@ Data/audio_data/audio_out/*
 !Data/audio_data/audio_out/.placeholder
 
 Data/raw_data/*
-!Data/postprocessedraw_data_training_data/.placeholder
+!Data/raw_data/.placeholder
 
 autoencoder_*
 *.wav
