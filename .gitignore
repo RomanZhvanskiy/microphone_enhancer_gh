@@ -1,19 +1,18 @@
-raw_data/
 https://github.com/shoval/jupyter-navbar.git/
 jupyter-navbar
 
 __pycache__/
 
+# Data in the package
+# Add files you want to include in the git repo using `git add -f file_name`
 
-pretrained_models/*
-
-
-audio_data/audio_in/*
-audio_data/audio_out/*
+Data/pretrained_models/*
+Data/postprocessed_training_data/*
+Data/audio_data/audio_in/*
+Data/audio_data/audio_out/*
+Data/raw_data/*
 autoencoder_*
 *.wav
-results/*
-audio_cache/*
 
 
 # Standard python ignores
@@ -35,14 +34,12 @@ audio_cache/*
 *.vscode
 
 # Raw data
-raw_data/
+#raw_data/
 *.csv
 *.sqlite
 *.zip
 
-# Data in the package
-# Add files you want to include in the git repo using `git add -f file_name`
-data/
+
 
 # Saved models
 models/
@@ -63,4 +60,3 @@ secrets.toml
 
 # User defined extras
 # Complete to your desire
-
