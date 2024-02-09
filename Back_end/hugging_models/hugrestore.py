@@ -9,6 +9,7 @@ This module cleans the audio file using SpeechBrain pre-trained models from Hugg
 #import numpy as np
 import os
 import sys
+import shutil
 import tempfile
 
 import torchaudio
@@ -70,8 +71,10 @@ def wham_16k(input_file:str, from_fs:bool=True):
             sys.exit(f'File {input_file}.wav does not exist')
     else:
         full_input_file = input_file
-        full_output_file = os.path.join(tempfile.gettempdir(), input_file + '-wham_16k-res' + '.wav')
+        full_output_file = os.path.join(audio_out_path, os.path.basename(input_file) + '-wham_16k-res' + '.wav')
 
+
+    shutil.copyfile(os.path.join(full_input_file), os.path.join(audio_in_path, os.path.basename(input_file) + '-wham_16k-orig' + '.wav'))
     model = separator.from_hparams(source="speechbrain/sepformer-wham16k-enhancement",
                                    savedir='pretrained_models/sepformer-wham16k-enhancement')
     est_sources = model.separate_file(full_input_file) # autoconverts to 16kHz
@@ -103,11 +106,16 @@ def dns4_16k(input_file:str, from_fs:bool=True):
             sys.exit(f'File {input_file}.wav does not exist')
     else:
         full_input_file = input_file
-        full_output_file = os.path.join(tempfile.gettempdir(), input_file + '-dns4-16k-res' + '.wav')
+        #full_output_file = os.path.join(tempfile.gettempdir(), input_file + '-dns4-16k-res' + '.wav')
+        full_output_file = os.path.join(audio_out_path, os.path.basename(input_file) + '-dns4-16k-res' + '.wav')
+        #print(os.path.basename(input_file))
+        #torchaudio.save(os.path.join(audio_in_path, input_file + '.wav'), full_input_file, 16000)
 
+    shutil.copyfile(os.path.join(full_input_file), os.path.join(audio_in_path, os.path.basename(input_file) + '-dns4_16k-orig' + '.wav'))
     model = separator.from_hparams(source="speechbrain/sepformer-dns4-16k-enhancement",
                                    savedir='pretrained_models/sepformer-dns4-16k-enhancement')
     est_sources = model.separate_file(full_input_file) # autoconverts to 16kHz
+    print(full_output_file)
     torchaudio.save(full_output_file, est_sources[:, :, 0].detach().cpu(), 16000)
 
     #sf.write(full_output_file, est_sources[:, :, 0][0], 16000, subtype='PCM_16')

@@ -2,9 +2,10 @@
 This module implements api for getting model predictions with the help of FastAPI:
 https://fastapi.tiangolo.com
 """
-
+import os
 from fastapi import FastAPI, UploadFile, File, Form
-#from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from tempfile import NamedTemporaryFile
 from api.api_func import *
 from params import *
@@ -13,7 +14,7 @@ from hugging_models.hugrestore import dns4_16k, wham_16k
 app = FastAPI()
 
 #app.mount("/audio_in", StaticFiles(directory=audio_in_path), name="audio_in")
-#app.mount("/audio_out", StaticFiles(directory=audio_out_path), name="audio_out")
+app.mount("/audio_out", StaticFiles(directory=audio_out_path), name="audio_out")
 
 @app.get('/') # root endpoint
 def index():
@@ -27,23 +28,25 @@ def index():
 def audio_in():
     return list_path(audio_in_path)
 
-@app.get("/audio_out") # list files in audio_out deirectory
-def audio_in():
-    return list_path(audio_out_path)
+# @app.get("/audio_out") # list files in audio_out deirectory
+# def audio_in():
+#     return list_path(audio_out_path)
 
 @app.post("/upload_file")
 async def upload_file(enhancer: str = Form(...), file: UploadFile = File(...)):
-    #print(type(file.file))
-    #ala, audio = dns4_16k(file)
-    #print(file.file.read())
     #import soundfile as sf
     #data, sr = sf.read(file.file)
-    print(enhancer)
+
+    # temp file logic
     temp = NamedTemporaryFile(delete=False)
-    #print(file.file.read())
     with temp as f:
         f.write(file.file.read())
-    #print(temp)
+
+    # normal file logic
+    # file_name = os.path.join(audio_in_path, file.filename)
+    # with open(file_name, "x") as audio_file:
+    #     audio_file.write(file.file.read())
+
     if enhancer == "speechbrain/sepformer-wham16k-enhancement":
         spec_aud_sr, cleaned_path = wham_16k(temp.name, from_fs=False)
     elif enhancer == "speechbrain/sepformer-dns4-16k-enhancement":
@@ -51,9 +54,15 @@ async def upload_file(enhancer: str = Form(...), file: UploadFile = File(...)):
     elif enhancer == "NOT IMPLEMENTED YET: microphone_enhancer_gh":
         False #spec_aud_sr, cleaned_path = dns4_16k(temp.name, from_fs=False)
 
-    #print(collected[2])
-    #sf.write(data, sr)
-    return {"cleaned_file_name": cleaned_path,
+    # headers = {'Content-Disposition': 'inline'}
+    # return FileResponse(cleaned_path, media_type="audio/wav", headers = headers)
+
+    # with open(cleaned_path, "rb") as f:
+    #     contents = f.read()
+    # headers = {'Content-Disposition': f'attachment; filename="test"'}
+    # return Response(contents, headers=headers, media_type='audio/wav')
+
+    return {"cleaned_file_name": os.path.basename(cleaned_path),
             "sample rate": spec_aud_sr[2],
             #"audio": cleaned_audio,
             }
