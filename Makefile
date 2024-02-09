@@ -1,25 +1,29 @@
 #################### PACKAGE ACTIONS ###################
-#reinstall_package:
-#        @pip uninstall -y taxifare || :
-#        @pip install -e .
+reinstall_package:
+	@pip uninstall -y microphone-enhancer || :
+	@pip install -e .
 
 run_preprocess:
-	python -c 'from interface.audioenhancer_local import preprocess; preprocess()'
+	python -c 'from Back_end.interface.audioenhancer_local import preprocess; preprocess()'
 
 run_train:
-	python -c 'from interface.audioenhancer_local import train; train()'
+	python -c 'from Back_end.interface.audioenhancer_local import train; train()'
 
 run_pred:
-	python -c 'from interface.audioenhancer_local import pred; pred()'
+	python -c 'from Back_end.interface.audioenhancer_local import pred; pred()'
 
 run_evaluate:
-	python -c 'from interface.audioenhancer_local import evaluate; evaluate()'
+	python -c 'from Back_end.interface.audioenhancer_local import evaluate; evaluate()'
 
 run_all: run_preprocess run_train run_pred run_evaluate
 
-
-## TESTS ##
-api_test:
-	uvicorn api.enhancer_api:app --reload &
-	sleep 5
-	streamlit run test_api.py
+## REMOVE UNNECESSARY FILES & FOLDERS ##
+clean:
+#	@rm -f */version.txt
+#	@rm -f .coverage
+	@rm -f */.ipynb_checkpoints
+#	@rm -Rf build
+	@rm -Rf */__pycache__
+	@rm -Rf */*.pyc
+	@rm -Rf audio_cache
+#	@rm -Rf results

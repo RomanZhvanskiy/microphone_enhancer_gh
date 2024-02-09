@@ -359,7 +359,7 @@ def mel_spectrogram_remove_quiet_sounds (spectrogram, sr,  remove_below=0.01, de
     return degraded_spectrogram
 
 def degrade_quaity(spectrogram, sr, upper_limit=3000.0, lower_limit=100.0, insensitive_level = 0.5,relative_noise_level=0.1, debug=0):
-    degraded_spectrogram = pp.mel_spectrogram_remove_frequency(
+    degraded_spectrogram = mel_spectrogram_remove_frequency(
             spectrogram,
             sr,
             remove_above=upper_limit,
@@ -368,14 +368,14 @@ def degrade_quaity(spectrogram, sr, upper_limit=3000.0, lower_limit=100.0, insen
 
 
     #remove quiet sounds  (our simulated bad microphone cannot capture quiet sounds)
-    degraded_spectrogram = pp.mel_spectrogram_remove_quiet_sounds (
+    degraded_spectrogram = mel_spectrogram_remove_quiet_sounds (
             degraded_spectrogram,
             sr,
             remove_below=insensitive_level,
             debug=debug)
 
     #add noise (our simulated bad microphone also captures noize)
-    degraded_spectrogram = pp.mel_spectrogram_add_noise(degraded_spectrogram,
+    degraded_spectrogram = mel_spectrogram_add_noise(degraded_spectrogram,
             sr,
             relative_noise_level=relative_noise_level,
             add_above=lower_limit,
@@ -412,7 +412,7 @@ def load_wav (where_to_find_audio):
 
 
 
-def get_speech(speaker_id = -1 , passage_id = None, working_in_google_colab = False):
+def get_speech(speaker_id = -1 , passage_id = None, where_to_get_training_data="not specified", working_in_google_colab = False):
     """
     get_speech reads a .wav file into  a waveform `x` and also reads a sampling rate
 
@@ -430,8 +430,12 @@ def get_speech(speaker_id = -1 , passage_id = None, working_in_google_colab = Fa
 
     """
 
-    BASE_DIR = get_base_dir(working_in_google_colab=working_in_google_colab)
-    AUDIO_DIR = os.path.join(BASE_DIR, 'wav48')
+    if (where_to_get_training_data == "not specified"):
+        BASE_DIR = get_base_dir(working_in_google_colab=working_in_google_colab)
+        AUDIO_DIR = os.path.join(BASE_DIR, 'wav48')
+    else:
+        AUDIO_DIR = where_to_get_training_data
+
     SAMPLING_RATE = 48000 #22050 - old value
     MAX_DURATION = 8
     SR_DOWNSAMPLE = 2
@@ -461,7 +465,7 @@ def get_speech(speaker_id = -1 , passage_id = None, working_in_google_colab = Fa
 
 
 
-def get_all_speech_as_one_mel(num_spectrograms=10000, num_speaker = 0, random_state=1, debug = 0, working_in_google_colab = False):
+def get_all_speech_as_one_mel(num_spectrograms=10000, num_speaker = 0, where_to_get_training_data="not specified", random_state=1, debug = 0,  working_in_google_colab = False):
     """
     get_all_speech_as_one_mel reads all .wav files into  a waveform;
     converts each waveform into MEL spectrogram;
@@ -488,10 +492,17 @@ def get_all_speech_as_one_mel(num_spectrograms=10000, num_speaker = 0, random_st
     x, sr  = get_speech()
 
     """
+    if (debug) : print (f"where_to_get_training_data={where_to_get_training_data}")
 
-    BASE_DIR = get_base_dir(working_in_google_colab=working_in_google_colab)
+    if (where_to_get_training_data == "not specified"):
+        BASE_DIR = get_base_dir(working_in_google_colab=working_in_google_colab)
+        AUDIO_DIR = os.path.join(BASE_DIR, 'wav48')
+    else:
+        AUDIO_DIR = where_to_get_training_data
+
+    #BASE_DIR = get_base_dir(working_in_google_colab=working_in_google_colab)
     #TXT_DIR = os.path.join(BASE_DIR, 'txt')
-    AUDIO_DIR = os.path.join(BASE_DIR, 'wav48')
+    #AUDIO_DIR = os.path.join(BASE_DIR, 'wav48')
     SAMPLING_RATE = 48000
     MAX_DURATION = 8
     SR_DOWNSAMPLE = 2

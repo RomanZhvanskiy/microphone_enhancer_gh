@@ -13,9 +13,3 @@ torchaudio
 fastapi
 uvicorn
 python-multipart
-
-#for img_metrics.py
-scikit-image
-
-#other stuff
-numpy

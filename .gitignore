@@ -1,19 +1,30 @@
-raw_data/
 https://github.com/shoval/jupyter-navbar.git/
 jupyter-navbar
 
 __pycache__/
 
+# Data in the package
+# Add files you want to include in the git repo using `git add -f file_name`
 
-pretrained_models/*
+#the lines below keep the folder structure but not the files
+# .placeholder file is needed to make it work
+Data/pretrained_models/*
+!Data/pretrained_models/.placeholder
 
+Data/postprocessed_training_data/*
+!Data/postprocessed_training_data/.placeholder
 
-audio_data/audio_in/*
-audio_data/audio_out/*
+Data/audio_data/audio_in/*
+!Data/audio_data/audio_in/.placeholder
+
+Data/audio_data/audio_out/*
+!Data/audio_data/audio_out/.placeholder
+
+Data/raw_data/*
+!Data/raw_data/.placeholder
+
 autoencoder_*
 *.wav
-results/*
-audio_cache/*
 
 
 # Standard python ignores
@@ -35,14 +46,12 @@ audio_cache/*
 *.vscode
 
 # Raw data
-raw_data/
+#raw_data/
 *.csv
 *.sqlite
 *.zip
 
-# Data in the package
-# Add files you want to include in the git repo using `git add -f file_name`
-data/
+
 
 # Saved models
 models/
@@ -63,4 +72,3 @@ secrets.toml
 
 # User defined extras
 # Complete to your desire
-

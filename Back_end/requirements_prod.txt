@@ -1,5 +1,5 @@
 # notebooks
-tensorflow
+#tensorflow
 
 # audio_preprocessing module
 matplotlib
@@ -13,9 +13,3 @@ torchaudio
 fastapi
 uvicorn
 python-multipart
-
-#for img_metrics.py
-scikit-image
-
-#other stuff
-numpy
