@@ -27,33 +27,48 @@ from keras.callbacks import BackupAndRestore
 #                     FOLDER STRUCTURE
 #############################################################
 #
-#├── audio_preprocessing
-#│   ├── __init__.py
-#│   ├── preprocessing.py
-#│   └── __pycache__
-#├── hugging_models
-#│   ├── hugrestore.py
-#│   └── __pycache__
-#├── image_metrics
-#│   ├── img_metrics.py
-#│   └── __init__.py
-#├── interface
-#│   ├── audioenhancer_local.py <<<<<<<<<<<<< THIS LIBRARY
-#│   ├── __init__.py
-#│   └── params.py
-#├── pretrained_models
-#│   ├── sepformer-dns4-16k-enhancement
-#│   └── sepformer-wham16k-enhancement
-#├── raw_data
+#FOLDER STRUCTURE
+#=======================
+#├── Back_end
+#│   ├── api
+#│   │   ├── api_func.py
+#│   │   ├── enhancer_api.py
+#│   ├── audio_preprocessing
+#│   │   ├── preprocessing.py #conversion of waveforms to/from SG, degrade quality, etc
+#│   ├── hugging_models
+#│   │   ├── hugrestore.py
+#│   ├── image_metrics
+#│   │   ├── img_metrics.py #image quality metrics
+#│   ├── interface
+#│   │   ├── audioenhancer_local.py #this is where the functions are to be called by API
+#│   ├── ml_logic
+#│   │   ├── model.py #NN model is here
+#│   ├── params.py #parameters (mostly folder names) here
+#│
+#├── Data
+#│   ├── audio_data
+#│   │   ├── audio_in #this is where bad quality input comes in
+#│   │   └── audio_out #this is where good quality output comes out
+#│   ├── postprocessed_training_data #preprocessed data for training model
+#│   │   ├── degraded_test_sg.sg
+#│   │   ├── degraded_train_sg.sg
+#│   │   ├── test_sg.sg
+#│   │   └── train_sg.sg
+#│   ├── pretrained_models #where we save models
+#│   └── raw_data #data for training model
 #│   └── VCTK-Corpus
+#├── Front_end
+#│   └── test_api.py #web site
+#├── jupyter_books
+#│   ├── Copy of Speech_enhancement_6-checkpoint.ipynb
+#│   └── hugging_conversions_test.ipynb
+#├── Makefile
 #├── README.md
 #├── requirements.txt
-#├── ml_logic
-#│  ├── __init__.py
-#│  └── model.py
-
-
-
+#├── setup.py
+#├── test_hugging_models.py
+#└── Untitled.ipynb
+#
 #
 # Adds higher directory to python modules path
 import sys
@@ -64,20 +79,25 @@ sys.path.append(
 
 sys.path.append("..") # Adds higher directory to python modules path.
 
+print (f"sys.path = {sys.path}")
+
 from audio_preprocessing import preprocessing   as pp              #ok
 from image_metrics import img_metrics           as im              #ok
 from hugging_models import hugrestore           as hr              #ok
-from ml_logic import train_model_on_data_from_file, \
+
+#commented out below for debugging
+from ml_logic.model  import train_model, \
                      save_model,                    \
                      load_model,                    \
                      model_predict
 
 
 
-from microphone_enhancer.params import *
+
+from params import *
 
 
-def preprocess(num_spectrograms=100, num_speaker =0, debug=0) -> None:
+def preprocess(num_spectrograms=10, num_speaker =0, debug=0) -> None:
     if(debug):
         print ("preprocess is running in debug mode - do nothing")
         pass
@@ -87,15 +107,23 @@ def preprocess(num_spectrograms=100, num_speaker =0, debug=0) -> None:
         # Save and append the processed chunk to a local CSV at "data_processed_path"
 
     if (TRAINING_DATA_LOCATION == "use_local_data"):
-        large_data, sr = pp.get_all_speech_as_one_mel(num_spectrograms, num_speaker, debug = 1)
+        where_to_get_training_data = os.path.dirname(os.path.realpath(__file__))
+        where_to_get_training_data = where_to_get_training_data.replace(\
+                       "/microphone_enhancer_gh/Back_end/interface",     \
+                       f"/microphone_enhancer_gh/{TRAINING_DATA_SUBFOLDER}")
+
+
+        large_data, sr = pp.get_all_speech_as_one_mel(num_spectrograms, num_speaker, where_to_get_training_data, debug = 1)
         train_sg, test_sg = pp.split_spectrogram_in_train_and_test(large_data,0.2, debug=1)
         degraded_train_sg = pp.degrade_quaity(train_sg, sr )
         degraded_test_sg =  pp.degrade_quaity(test_sg, sr )
 
-        where_to_save_training_data = pp.get_base_dir
+        where_to_save_training_data = os.path.dirname(os.path.realpath(__file__))
         where_to_save_training_data = where_to_save_training_data.replace(\
-                       "/microphone_enhancer_gh/audio_preprocessing",     \
-                       f"/microphone_enhancer_gh/{TRAINING_DATA_SUBFOLDER}}")
+                       "/microphone_enhancer_gh/Back_end/interface",     \
+                       f"/microphone_enhancer_gh/{POSTPROCESSED_TRAINING_DATA_SUBFOLDER}")
+
+#/home/romanz/code/RomanZhvanskiy/microphone_enhancer_gh/Back_end/audio_preprocessing/wav48
 
 
         np.savetxt(fname=f"{where_to_save_training_data}/train_sg.sg", X=train_sg                  , delimiter = ",")
@@ -115,10 +143,10 @@ def train(debug=0, only_do_one_epoch=0) -> None:
     if (TRAINING_DATA_LOCATION == "use_local_data"):
 
         #load the training data in the memory
-        where_to_save_training_data = pp.get_base_dir
+        where_to_save_training_data = os.path.dirname(os.path.realpath(__file__))
         where_to_save_training_data = where_to_save_training_data.replace(\
-                       "/microphone_enhancer_gh/audio_preprocessing",     \
-                       f"/microphone_enhancer_gh/{TRAINING_DATA_SUBFOLDER}}")
+                       "/microphone_enhancer_gh/Back_end/interface",     \
+                       f"/microphone_enhancer_gh/{POSTPROCESSED_TRAINING_DATA_SUBFOLDER}")
 
         train_sg           = np.genfromtxt(f"{where_to_save_training_data}/train_sg.sg",          delimiter=',')
         test_sg            = np.genfromtxt(f"{where_to_save_training_data}/test_sg.sg",           delimiter=',')
@@ -126,7 +154,9 @@ def train(debug=0, only_do_one_epoch=0) -> None:
         degraded_test_sg   = np.genfromtxt(f"{where_to_save_training_data}/degraded_test_sg.sg",  delimiter=',')
 
         #train the model
-        model, history = train_model_on_data_from_file(
+
+
+        model, history = train_model(
                             train_sg          = train_sg          ,
                             test_sg           = test_sg           ,
                             degraded_train_sg = degraded_train_sg ,
@@ -135,19 +165,25 @@ def train(debug=0, only_do_one_epoch=0) -> None:
                             only_do_one_epoch = only_do_one_epoch)
 
         #save the model to HDD
-        where_to_save_trained_model = pp.get_base_dir
+        where_to_save_trained_model = os.path.dirname(os.path.realpath(__file__))
         where_to_save_trained_model = where_to_save_trained_model.replace(\
-                       "/microphone_enhancer_gh/audio_preprocessing",     \
-                       f"/microphone_enhancer_gh/{MODEL_SUBFOLDER}}")
+                       "/microphone_enhancer_gh/Back_end/interface",     \
+                       f"/microphone_enhancer_gh/{MODEL_SUBFOLDER}")
 
         save_model(model, history, where_to_save_trained_model)
 
         # print the last value of the metric
-        display_metric = np.min(history.history['display_metric'])
+        #print (f"history.history.keys() = {history.history.keys()}")
+        display_loss = np.min(history.history['loss'])
+        display_mse = np.min(history.history['mse'])
+        display_val_loss = np.min(history.history['val_loss'])
+        display_val_mse = np.min(history.history['val_mse'])
+
+
         if (only_do_one_epoch):
-            print (f"model has been successfully trained for one epoch. Achieved accuracy metric = {display_metric}")
+            print (f"model has been successfully trained for one epoch. Achieved validation loss = {display_val_loss}")
         else:
-            print (f"model has been successfully trained. Achieved accuracy metric = {display_metric}")
+            print (f"model has been successfully trained. Achieved validation loss = {display_val_loss}")
 
 
 
@@ -166,20 +202,31 @@ def pred(test_string="none", debug=0) -> None:
     #load the model from HDD
 
 
-    where_to_save_trained_model = pp.get_base_dir
+    where_to_save_trained_model = os.path.dirname(os.path.realpath(__file__))
     where_to_save_trained_model = where_to_save_trained_model.replace(\
-                   "/microphone_enhancer_gh/audio_preprocessing",     \
-                   f"/microphone_enhancer_gh/{MODEL_SUBFOLDER}}")
+                   "/microphone_enhancer_gh/Back_end/interface",     \
+                   f"/microphone_enhancer_gh/{MODEL_SUBFOLDER}")
 
-    model = load_model(model, where_to_save_trained_model)
+    if not os.path.exists(where_to_save_trained_model):
+        print(f'The file {where_to_save_trained_model} does not exist. Please train the model before making predictions.')
+        return
+
+
+    model = load_model(where_to_save_trained_model)
 
     #load the bad quality SG from HDD
 
 
-    where_to_find_bad_audio = pp.get_base_dir
+    where_to_find_bad_audio = os.path.dirname(os.path.realpath(__file__))
     where_to_find_bad_audio = where_to_find_bad_audio.replace(\
-                   "/microphone_enhancer_gh/audio_preprocessing",     \
+                   "/microphone_enhancer_gh/Back_end/interface",     \
                    f"/microphone_enhancer_gh/{BAD_QUALITY_FILE}")
+
+    if not os.path.exists(where_to_find_bad_audio):
+        print(f'The file {where_to_find_bad_audio} does not exist. Please provide input to make predictions.')
+        return
+
+
 
     bad_audio, sr = pp.load_wav(where_to_find_bad_audio)
     #convert bad_audio to spectrogram
@@ -197,12 +244,12 @@ def pred(test_string="none", debug=0) -> None:
 
 
     #write the good quality waveform to HDD
-    where_to_find_good_audio = pp.get_base_dir
+    where_to_find_good_audio = os.path.dirname(os.path.realpath(__file__))
     where_to_find_good_audio = where_to_find_good_audio.replace(\
-                   "/microphone_enhancer_gh/audio_preprocessing",     \
+                   "/microphone_enhancer_gh/Back_end/interface",     \
                    f"/microphone_enhancer_gh/{GOOD_QUALITY_FILE}")
 
-    pp.waveform_2_file (good_audio,sr,filename="where_to_find_good_audio"):
+    pp.waveform_2_file (good_audio,sr,filename=where_to_find_good_audio)
 
 
 #test some of the methods
