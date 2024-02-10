@@ -21,13 +21,9 @@ COPY setup.py setup.py
 RUN pip install .
 
 # run api
-CMD uvicorn api.enhancer_api:app --host 0.0.0.0
+CMD uvicorn api.enhancer_api:app --host 0.0.0.0 --port $PORT
 
 # create needed directories
 RUN mkdir -p ../Data/raw_data
 RUN mkdir -p ../Data/audio_data/audio_in
 RUN mkdir ../Data/audio_data/audio_out
-
-#COPY Makefile Makefile
-#RUN make reset_local_files
-#uvicorn taxifare.api.fast:app --host 0.0.0.0 --port $PORT
