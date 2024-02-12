@@ -11,8 +11,16 @@ api_fe:
 	sleep 5
 	streamlit run ../Front_end/test_api.py
 
+api_fe2:
+	uvicorn api.enhancer_api_connected_to_backend2:app --reload &
+	sleep 5
+	streamlit run ../Front_end/test_api.py
+
 api:
-	uvicorn api.enhancer_api:app --host 0.0.0.0
+	uvicorn api.enhancer_api:app --reload &
+
+api2:
+	uvicorn api.enhancer_api_connected_to_backend2:app --reload &
 
 fe:
 	streamlit run ../Front_end/test_api.py

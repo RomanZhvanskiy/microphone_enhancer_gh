@@ -306,6 +306,16 @@ def pred(test_string="none",
 #############################################################
 def pred_for_api(where_to_find_bad_audio="not specified",
                  enhancer=DEFAULT_MODEL_TYPE):
+
+
+    debug = 1
+    if (debug):
+        with open("debug_dump.txt", "w") as file1:
+            # Writing data to a file
+            file1.write("pred_for_api reporting \n")
+            file1.write(f"where_to_find_bad_audio = {where_to_find_bad_audio}  \n")
+            file1.write(f"enhancer = {enhancer}  \n")
+
     #wrapper for pred, adds spec_and_sr to the output
     # for consistency with other callable models
 
@@ -314,13 +324,22 @@ def pred_for_api(where_to_find_bad_audio="not specified",
 
 
     pred(test_string="none", sr_string=sr_string, enhancer=enhancer, where_to_find_bad_audio = where_to_find_bad_audio, debug=0)
-    spec_and_sr = [0, 0, sr_string] #make a list to be consistent with other methods
+    spec_and_sr = [0, 0, "24"] #make a list to be consistent with other methods
 
 
     where_to_find_good_audio = find_a_place_for_good_audio()
 
     #return
-    spec_and_sr, where_to_find_good_audio
+
+    debug = 1
+    if (debug):
+        with open("debug_dump.txt", "w") as file1:
+            # Writing data to a file
+            file1.write("pred_for_api reporting \n")
+            file1.write(f"spec_and_sr = {spec_and_sr}  \n")
+            file1.write(f"where_to_find_good_audio = {where_to_find_good_audio}  \n")
+
+    return spec_and_sr, where_to_find_good_audio
 
 
 

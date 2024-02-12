@@ -4,7 +4,7 @@ https://fastapi.tiangolo.com
 """
 
 from fastapi import FastAPI, UploadFile, File, Form
-#from fastapi.staticfiles import StaticFiles
+from fastapi.staticfiles import StaticFiles
 from tempfile import NamedTemporaryFile
 from api.api_func import *
 from params import *
@@ -13,8 +13,8 @@ from interface import audioencoder_local as al
 
 app = FastAPI()
 
-#app.mount("/audio_in", StaticFiles(directory=audio_in_path), name="audio_in")
-#app.mount("/audio_out", StaticFiles(directory=audio_out_path), name="audio_out")
+app.mount("/audio_in", StaticFiles(directory=audio_in_path), name="audio_in")
+app.mount("/audio_out", StaticFiles(directory=audio_out_path), name="audio_out")
 
 @app.get('/') # root endpoint
 def index():
@@ -28,9 +28,9 @@ def index():
 def audio_in():
     return list_path(audio_in_path)
 
-@app.get("/audio_out") # list files in audio_out deirectory
-def audio_in():
-    return list_path(audio_out_path)
+#@app.get("/audio_out") # list files in audio_out deirectory
+#def audio_in():
+#    return list_path(audio_out_path)
 
 @app.post("/upload_file")
 async def upload_file(enhancer: str = Form(...), file: UploadFile = File(...)):
@@ -49,14 +49,14 @@ async def upload_file(enhancer: str = Form(...), file: UploadFile = File(...)):
         spec_aud_sr, cleaned_path = wham_16k(temp.name, from_fs=False)
     elif enhancer == "speechbrain/sepformer-dns4-16k-enhancement":
         spec_aud_sr, cleaned_path = dns4_16k(temp.name, from_fs=False)
-    elif enhancer == "microphone_enhancer_gh/autoencoder_10_256":
-        #python -c 'from Back_end.interface.audioenhancer_local import pred; pred( enhancer="microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1")'
-        spec_aud_sr, cleaned_path = al.pred_for_api(where_to_find_bad_audio=temp.name, enhancer="microphone_enhancer_gh/autoencoder_10_256")
-
-    elif enhancer == "microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1":
-        #python -c 'from Back_end.interface.audioenhancer_local import pred; pred( enhancer="microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1")'
-        spec_aud_sr, cleaned_path = al.pred_for_api(where_to_find_bad_audio=temp.name, enhancer="microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1")
-
+#    elif enhancer == "microphone_enhancer_gh/autoencoder_10_256":
+#        #python -c 'from Back_end.interface.audioenhancer_local import pred; pred( enhancer="microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1")'
+#        spec_aud_sr, cleaned_path = al.pred_for_api(where_to_find_bad_audio=temp.name, enhancer="microphone_enhancer_gh/autoencoder_10_256")
+#
+#    elif enhancer == "microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1":
+#        #python -c 'from Back_end.interface.audioenhancer_local import pred; pred( enhancer="microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1")'
+#        spec_aud_sr, cleaned_path = al.pred_for_api(where_to_find_bad_audio=temp.name, enhancer="microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1")
+#
     elif enhancer == "NOT IMPLEMENTED YET: microphone_enhancer_gh":
         False #spec_aud_sr, cleaned_path = dns4_16k(temp.name, from_fs=False)
 
