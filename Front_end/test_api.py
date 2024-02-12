@@ -24,6 +24,8 @@ st.write(requests.get(url).json())
 enhancer = st.radio("Select enhancer:",
                     ["speechbrain/sepformer-dns4-16k-enhancement",
                      "speechbrain/sepformer-wham16k-enhancement",
+                     "microphone_enhancer_gh/autoencoder_10_256",
+                     "microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1",
                      "NOT IMPLEMENTED YET: microphone_enhancer_gh"],
                     index=0,
                     )

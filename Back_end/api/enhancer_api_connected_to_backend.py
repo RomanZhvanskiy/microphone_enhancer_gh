@@ -9,6 +9,7 @@ from tempfile import NamedTemporaryFile
 from api.api_func import *
 from params import *
 from hugging_models.hugrestore import dns4_16k, wham_16k
+from interface import audioencoder_local as al
 
 app = FastAPI()
 
@@ -48,6 +49,14 @@ async def upload_file(enhancer: str = Form(...), file: UploadFile = File(...)):
         spec_aud_sr, cleaned_path = wham_16k(temp.name, from_fs=False)
     elif enhancer == "speechbrain/sepformer-dns4-16k-enhancement":
         spec_aud_sr, cleaned_path = dns4_16k(temp.name, from_fs=False)
+    elif enhancer == "microphone_enhancer_gh/autoencoder_10_256":
+        #python -c 'from Back_end.interface.audioenhancer_local import pred; pred( enhancer="microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1")'
+        spec_aud_sr, cleaned_path = al.pred_for_api(where_to_find_bad_audio=temp.name, enhancer="microphone_enhancer_gh/autoencoder_10_256")
+
+    elif enhancer == "microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1":
+        #python -c 'from Back_end.interface.audioenhancer_local import pred; pred( enhancer="microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1")'
+        spec_aud_sr, cleaned_path = al.pred_for_api(where_to_find_bad_audio=temp.name, enhancer="microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1")
+
     elif enhancer == "NOT IMPLEMENTED YET: microphone_enhancer_gh":
         False #spec_aud_sr, cleaned_path = dns4_16k(temp.name, from_fs=False)
 
