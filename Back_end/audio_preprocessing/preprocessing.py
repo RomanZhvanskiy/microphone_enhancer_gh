@@ -186,6 +186,17 @@ def waveform_2_file (waveform1,sr,filename="test_sound.wav"):
 
     """
     #write waveform to file
+
+
+    debug = 0
+    if (debug):
+        print (f"filename = {filename}")
+        print (f"waveform1 = {waveform1}")
+        print (f"sr = {sr}")
+        print (f"waveform1.shape = {waveform1.shape}")
+        print (f"len(waveform1.shape) = {len(waveform1.shape)}")
+
+
     sf.write(filename, waveform1, sr, subtype='PCM_24')
 
     return

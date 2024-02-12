@@ -12,13 +12,16 @@ import pandas as pd # data processing, CSV file I/O (e.g. pd.read_csv)
 #
 #from IPython.display import Audio #play back the signal (original waveform)
 #import  IPython
-from tensorflow.keras import callbacks
 from keras.callbacks import EarlyStopping
 from keras.callbacks import BackupAndRestore
 from tensorflow.keras import models
 from tensorflow.keras import layers
 from tensorflow.keras.optimizers import Adam
 import pickle
+
+######################################################
+#          models which can be used
+######################################################
 
 def build_autoencoder_10_256 ():
     model = models.Sequential()
@@ -27,25 +30,49 @@ def build_autoencoder_10_256 ():
     return model
 
 
+
+def build_convolutional_autoencoder_16_32_64_32_16_1():
+    conv_ac = models.Sequential()
+    conv_ac.add(layers.Reshape([256,1], input_shape=[256]))
+    conv_ac.add(layers.Conv1D(16, kernel_size=6, padding="same", input_dim=[256,1], activation='selu'))
+    conv_ac.add(layers.MaxPool1D(pool_size=4))
+    conv_ac.add(layers.Conv1D(32, kernel_size=6, padding="same", activation='selu'))
+    conv_ac.add(layers.MaxPool1D(pool_size=4))
+    conv_ac.add(layers.Conv1D(64, kernel_size=6, padding="same", activation='selu'))
+    conv_ac.add(layers.MaxPool1D(pool_size=4))
+
+    conv_ac.add(layers.Conv1DTranspose(32, kernel_size=6, strides=4, padding="same", activation='selu'))
+    conv_ac.add(layers.Conv1DTranspose(16, kernel_size=6, strides=4, padding="same", activation='selu'))
+    conv_ac.add(layers.Conv1DTranspose(1, kernel_size=6, strides=4, padding="same", activation='relu'))
+    return conv_ac
+
+
+######################################################
+#          training
+######################################################
 def train_model  (train_sg           ,
                                     test_sg            ,
                                     degraded_train_sg  ,
                                     degraded_test_sg   ,
                                     model_type         ,
-                                    only_do_one_epoch=0  ):
+                                    epochs  ):
 
 #create the model
+    dictionary_of_models = {
+    "microphone_enhancer_gh/autoencoder_10_256" : build_autoencoder_10_256(),
+    "microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1" : build_convolutional_autoencoder_16_32_64_32_16_1(),
+    }
 
-    if (model_type ==  "autoencoder_10_256"):
-        model = build_autoencoder_10_256()
-        optimizer = Adam()
-        model.compile(loss='mse',
+    if model_type not in dictionary_of_models:
+        print(f"model {model_type} is not implelented")
+        return
+
+    model = dictionary_of_models[model_type]
+
+    optimizer = Adam()
+    model.compile(loss='mse',
                       optimizer=optimizer,
                       metrics=['mse'])
-    else:
-        print (f"error! model_type = {model_type} not recognized!")
-
-
 
     es = EarlyStopping(
         monitor="val_loss",
@@ -60,10 +87,8 @@ def train_model  (train_sg           ,
         delete_checkpoint=True
     )
 
-    if (only_do_one_epoch):
-        epochs=1
-    else:
-        epochs=1000
+    if (epochs < 2): epochs=2 #epochs=1 doesn't work
+
 
     history = model.fit( x= np.transpose(degraded_train_sg),
                                   y= np.transpose(train_sg),
@@ -94,6 +119,8 @@ def load_model (filepath):
 def model_predict (model, bad_audio_sg):
     good_audio_sg_t = model.predict(np.transpose(bad_audio_sg))
     good_audio_sg = np.transpose(good_audio_sg_t)
+
+
     return good_audio_sg
 
 
