@@ -197,11 +197,30 @@ def train(debug=0,
 
         #load the training data in the memory
         where_to_save_training_data = find_a_place_for_postprocessed_training_data ()
-
+        print (f"where_to_save_training_data = {where_to_save_training_data}")
         train_sg           = np.genfromtxt(f"{where_to_save_training_data}/train_sg.sg",          delimiter=',')
         test_sg            = np.genfromtxt(f"{where_to_save_training_data}/test_sg.sg",           delimiter=',')
         degraded_train_sg  = np.genfromtxt(f"{where_to_save_training_data}/degraded_train_sg.sg", delimiter=',')
         degraded_test_sg   = np.genfromtxt(f"{where_to_save_training_data}/degraded_test_sg.sg",  delimiter=',')
+
+
+        if (len(train_sg.shape          ) == 1 or \
+			len(test_sg.shape           ) == 1 or  \
+			len(degraded_train_sg.shape ) == 1 or\
+			len(degraded_test_sg.shape  ) == 1 ) :
+            print ("There is a problem with preprocessed training data." +\
+                  " Please run make run_preprocess before make run_train.")
+            return
+
+
+
+
+        #print (f"train_sg.shape          = {train_sg.shape         }")
+        #print (f"test_sg.shape           = {test_sg.shape          }")
+        #print (f"degraded_train_sg.shape = {degraded_train_sg.shape}")
+        #print (f"degraded_test_sg.shape  = {degraded_test_sg.shape }")
+#
+
 
         #train the model
         model, history = train_model(
