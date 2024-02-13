@@ -38,9 +38,14 @@ if uploaded_file is not None:
     st.audio(uploaded_file)
     file = {'file': uploaded_file}
     params = {'enhancer': enhancer}
+    #import ipdb; ipdb.set_trace()
+    #cleaned = requests.post(upload_url,
+    #                        files=file,
+    #                        data=params).json()
     cleaned = requests.post(upload_url,
                             files=file,
                             data=params).json()
+    #ipdb.set_trace()
     st.write(f"Audio cleaned with {enhancer}:")
     st.write(cleaned)
     st.audio(os.path.join(serve_out_url, cleaned['cleaned_file_name']))
