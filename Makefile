@@ -17,6 +17,11 @@ run_pred:
 	python -c 'from Back_end.interface.audioenhancer_local import pred; pred()'
 run_pred_2:
 	python -c 'from Back_end.interface.audioenhancer_local import pred; pred( enhancer="microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1")'
+
+
+run_pred_for_api:
+	python -c 'from Back_end.interface.audioenhancer_local import pred_for_api; pred_for_api( where_to_find_bad_audio=temp.name, enhancer="microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1")'
+
 #run_evaluate:
 #	python -c 'from Back_end.interface.audioenhancer_local import evaluate; evaluate()'#
 
