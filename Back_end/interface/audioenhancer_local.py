@@ -344,8 +344,8 @@ def pred_for_api(where_to_find_bad_audio="not specified",
 
     #make predictions
 
-    shutil.copyfile(os.path.join(where_to_find_bad_audio), os.path.join(audio_in_path, 'good_quality.wav')) # copying temp file to audio_in. named 'good_quality' for api to work (it is bad_quality actually, distinguish by file location, not name, please)
-    save_spectro_image(os.path.join(audio_in_path, 'good_quality.wav'))
+    shutil.copyfile(os.path.join(where_to_find_bad_audio), os.path.join(audio_in_path, os.path.basename(f'{GOOD_QUALITY_FILE}'))) # copying temp file to audio_in. file is named '{GOOD_QUALITY_FILE}' for api to work (it is bad_quality actually, distinguish by file location, not name, please)
+    save_spectro_image(os.path.join(audio_in_path, os.path.basename(f'{GOOD_QUALITY_FILE}')))
 
     sr_string = ""
 
