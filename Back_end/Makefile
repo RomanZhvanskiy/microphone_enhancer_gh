@@ -9,12 +9,12 @@ docker_run:
 api_fe:
 	uvicorn api.enhancer_api:app --reload &
 	sleep 5
-	streamlit run ../Front_end/test_api.py
+	streamlit run ../Front_end/test_api.py --server.maxUploadSize 5
 
 api_fe2:
 	uvicorn api.enhancer_api_connected_to_backend2:app --reload &
 	sleep 5
-	streamlit run ../Front_end/test_api.py
+	streamlit run ../Front_end/test_api.py --server.maxUploadSize 5
 
 api:
 	uvicorn api.enhancer_api:app --reload &
@@ -23,7 +23,7 @@ api2:
 	uvicorn api.enhancer_api_connected_to_backend2:app --reload &
 
 fe:
-	streamlit run ../Front_end/test_api.py
+	streamlit run ../Front_end/test_api.py --server.maxUploadSize 5
 
 ## REMOVE UNNECESSARY FILES & FOLDERS ##
 clean:
