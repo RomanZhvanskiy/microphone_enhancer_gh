@@ -1,5 +1,6 @@
 import os
 import requests
+from PIL import Image
 import streamlit as st
 
 url = "http://127.0.0.1:8000/" # "https://micenhancerapi-3t3dih6maa-oa.a.run.app/", "http://127.0.0.1:8000/"
@@ -15,8 +16,7 @@ enhancer = st.radio("Select enhancer:",
                     ["speechbrain/sepformer-dns4-16k-enhancement",
                      "speechbrain/sepformer-wham16k-enhancement",
                      "microphone_enhancer_gh/autoencoder_10_256",
-                     "microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1",
-                     "NOT IMPLEMENTED YET: microphone_enhancer_gh"],
+                     "microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1"],
                     index=0,
                     )
 uploaded_file = st.file_uploader("Choose a noisy audio file (.wav):", type='wav')
@@ -41,6 +41,10 @@ if uploaded_file is not None:
         st.audio(os.path.join(serve_out_url, cleaned['cleaned_file_name']), format="audio/wav")
     col5, col6 = st.columns(2, gap='medium')
     with col5:
-        st.image(os.path.join(serve_in_url, cleaned['cleaned_file_name'])+'.jpg')
+        with Image.open(requests.get((os.path.join(serve_in_url, cleaned['cleaned_file_name']+'.jpg')), stream=True).raw) as image:
+            st.image(image)
+        #st.image(os.path.join(serve_in_url, cleaned['cleaned_file_name'])+'.jpg')
     with col6:
-        st.image(os.path.join(serve_out_url, cleaned['cleaned_file_name'])+'.jpg')
+        with Image.open(requests.get((os.path.join(serve_out_url, cleaned['cleaned_file_name']+'.jpg')), stream=True).raw) as image:
+            st.image(image)
+        #st.image(os.path.join(serve_out_url, cleaned['cleaned_file_name'])+'.jpg')
