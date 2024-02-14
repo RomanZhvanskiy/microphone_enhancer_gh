@@ -25,6 +25,10 @@ from keras.callbacks import EarlyStopping
 from keras.callbacks import BackupAndRestore
 
 
+import shutil #for copying files
+from hugging_models.hugrestore import save_spectro_image #for saving pics
+
+
 #############################################################
 #                     FOLDER STRUCTURE
 #############################################################
@@ -339,6 +343,10 @@ def pred_for_api(where_to_find_bad_audio="not specified",
     # for consistency with other callable models
 
     #make predictions
+
+    shutil.copyfile(os.path.join(where_to_find_bad_audio), os.path.join(audio_in_path, os.path.basename(f'{GOOD_QUALITY_FILE}'))) # copying temp file to audio_in. file is named '{GOOD_QUALITY_FILE}' for api to work (it is bad_quality actually, distinguish by file location, not name, please)
+    save_spectro_image(os.path.join(audio_in_path, os.path.basename(f'{GOOD_QUALITY_FILE}')))
+
     sr_string = ""
 
 
@@ -347,6 +355,8 @@ def pred_for_api(where_to_find_bad_audio="not specified",
 
 
     where_to_find_good_audio = find_a_place_for_good_audio()
+
+    save_spectro_image(where_to_find_good_audio)
 
     #return
     print ("############pred_for_api is working###################")
