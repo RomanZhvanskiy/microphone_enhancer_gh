@@ -56,6 +56,7 @@ async def upload_file(enhancer: str = Form(...), file: UploadFile = File(...)):
     elif enhancer == "microphone_enhancer_gh/autoencoder_10_256":
         spec_aud_sr, cleaned_path = pred_for_api(where_to_find_bad_audio=temp.name, enhancer="microphone_enhancer_gh/autoencoder_10_256")
 
+
     elif enhancer == "microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1":
         #python -c 'from Back_end.interface.audioenhancer_local import pred; pred( enhancer="microphone_enhancer_gh/conv_autoencoder_16_32_64_32_16_1")'
         #import ipdb; ipdb.set_trace()
