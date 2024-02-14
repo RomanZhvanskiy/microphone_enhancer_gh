@@ -1,4 +1,4 @@
-"""This module does audio processing
+"""This module does audio processingnsore
     rev.0.1 --changed sampling rate to 48000 Hz,
         changed the way files are addressed
         removed the need for txt files
@@ -10,6 +10,20 @@ import os
 import matplotlib.pyplot as plt
 import numpy as np # linear algebra
 from sklearn.utils import shuffle
+from params import *
+from tensorflow  import convert_to_tensor
+
+
+
+def find_a_place_for_training_data ():
+    folder_name = os.path.dirname(os.path.realpath(__file__))
+    folder_name = folder_name.replace(\
+                       "/microphone_enhancer_gh/Back_end/audio_preprocessing",     \
+                       f"/microphone_enhancer_gh/{TRAINING_DATA_SUBFOLDER}")
+    folder_name = folder_name.replace("//", "/").replace("//", "/")
+
+    #print (f"folder_name={folder_name}")
+    return folder_name
 
 
 def get_base_dir(debug = 0, working_in_google_colab = False):
@@ -18,10 +32,10 @@ def get_base_dir(debug = 0, working_in_google_colab = False):
         #/home/romanz/code/RomanZhvanskiy/microphone_enhancer_gh/raw_data/VCTK-Corpus
         #the preprocessing.py is located in
         #/home/romanz/code/RomanZhvanskiy/microphone_enhancer_gh/microphone_enhancer_gh/audio_preprocessing
-        base_dir = os.path.dirname(os.path.realpath(__file__))
-        base_dir = base_dir.replace("/microphone_enhancer_gh/audio_preprocessing", "/microphone_enhancer_gh/raw_data/VCTK-Corpus")
+        base_dir = find_a_place_for_training_data()
+
     else :
-        base_dir = "/content/gdrive/MyDrive/Colab Notebooks/data_audio/VCTK-Corpus"
+        base_dir = "/content/gdrive/MyDrive/Colab Notebooks/data_audio/VCTK-Corpus/wav48"
         if (debug): print (f"looking for training data here {base_dir}")
 
     return base_dir
@@ -241,7 +255,8 @@ def mel_spectrogram_remove_frequency(spectrogram, sr, remove_above=100000, remov
     row_frequencies_lst = row_frequencies.tolist()
     if (debug): print (f"row_frequencies_lst = {row_frequencies_lst }")
 
-    #create array keep_frequencies where value 1 corresponds to keeping the frequency, and value 0 to dropping it
+    #create array keep_frequencies where value 1 corresponds to keeping the
+    # frequency, and value 0 to dropping it
     keep_frequencies = np.empty_like(row_frequencies)
 
     for num_frequency, frequency in enumerate(row_frequencies_lst):
@@ -252,7 +267,8 @@ def mel_spectrogram_remove_frequency(spectrogram, sr, remove_above=100000, remov
         if (frequency > remove_above):
             keep_frequencies[num_frequency] = 0
 
-    #multiply column - wise original spectrogram with keep_frequencies vector to zero out some frequencies
+    #multiply column - wise original spectrogram with keep_frequencies vector to
+    # zero out some frequencies
     degraded_spectrogram  =  spectrogram*keep_frequencies[:, None]
     #print (f"keep_frequencies = {keep_frequencies}")
 
@@ -261,7 +277,15 @@ def mel_spectrogram_remove_frequency(spectrogram, sr, remove_above=100000, remov
 def sig(x):
  return 1/(1 + np.exp(-x))
 
-def mel_spectrogram_add_noise(spectrogram, sr, relative_noise_level=0.1, add_above=0, add_below=100000, fade_width = 0.5,debug=0):
+def mel_spectrogram_add_noise(spectrogram,
+	sr,
+	relative_noise_level=0.1,
+	add_above=0,
+	add_below=100000,
+	fade_width = 0.5,
+	debug=0):
+
+
     """
     degrade_mel_spectrogram_remove_frequency removes frequencies above remove_above and below remove_below (in hz)
     which it obtains by converting waveform to spectrogram
@@ -327,7 +351,8 @@ def mel_spectrogram_add_noise(spectrogram, sr, relative_noise_level=0.1, add_abo
 
 def mel_spectrogram_remove_quiet_sounds (spectrogram, sr,  remove_below=0.01, debug=0):
     """
-    degrade_mel_spectrogram_remove_frequency removes frequencies above remove_above and below remove_below (in hz)
+    degrade_mel_spectrogram_remove_frequency removes frequencies
+    above remove_above and below remove_below (in hz)
     which it obtains by converting waveform to spectrogram
 
     Args:
@@ -356,9 +381,10 @@ def mel_spectrogram_remove_quiet_sounds (spectrogram, sr,  remove_below=0.01, de
         print (f"spectrogram          = {spectrogram        }")
         print (f"sr          = {sr        }")
         print (f"remove_below          = {remove_below        }")
-        print (f"cut_off_below_this_intensity          = {cut_off_below_this_intensity        }")
+        print (f"cut_off_below_this_intensity= {cut_off_below_this_intensity}")
 
-    #create array noise_frequencies where value 1 corresponds to keeping the frequency, and value 0 to dropping it
+    #create array noise_frequencies where value 1 corresponds to
+    # keeping the frequency, and value 0 to dropping it
 
     degraded_spectrogram = spectrogram
     degraded_spectrogram[degraded_spectrogram < cut_off_below_this_intensity] = 0
@@ -369,7 +395,14 @@ def mel_spectrogram_remove_quiet_sounds (spectrogram, sr,  remove_below=0.01, de
 
     return degraded_spectrogram
 
-def degrade_quaity(spectrogram, sr, upper_limit=3000.0, lower_limit=100.0, insensitive_level = 0.5,relative_noise_level=0.1, debug=0):
+def degrade_quaity(spectrogram,
+	sr,
+	upper_limit=3000.0,
+	lower_limit=100.0,
+	insensitive_level = 0.5,
+	relative_noise_level=0.1,
+	debug=0):
+
     degraded_spectrogram = mel_spectrogram_remove_frequency(
             spectrogram,
             sr,
@@ -442,8 +475,7 @@ def get_speech(speaker_id = -1 , passage_id = None, where_to_get_training_data="
     """
 
     if (where_to_get_training_data == "not specified"):
-        BASE_DIR = get_base_dir(working_in_google_colab=working_in_google_colab)
-        AUDIO_DIR = os.path.join(BASE_DIR, 'wav48')
+        AUDIO_DIR = get_base_dir(working_in_google_colab=working_in_google_colab)
     else:
         AUDIO_DIR = where_to_get_training_data
 
@@ -476,7 +508,13 @@ def get_speech(speaker_id = -1 , passage_id = None, where_to_get_training_data="
 
 
 
-def get_all_speech_as_one_mel(num_spectrograms=10000, num_speaker = 0, where_to_get_training_data="not specified", random_state=1, debug = 0,  working_in_google_colab = False):
+def get_all_speech_as_one_mel(num_spectrograms=10000,
+	num_speaker = 0,
+	where_to_get_training_data="not specified",
+	random_state=1,
+	debug = 0,
+	working_in_google_colab = False):
+
     """
     get_all_speech_as_one_mel reads all .wav files into  a waveform;
     converts each waveform into MEL spectrogram;
@@ -484,14 +522,16 @@ def get_all_speech_as_one_mel(num_spectrograms=10000, num_speaker = 0, where_to_
 
 
     Args:
-        num_spectrograms: integer. If not specified, all spectrograms will be returned for the speaker
+        num_spectrograms: integer. If not specified, all spectrograms will be
+            returned for the speaker
         num_speaker: integer.
         random_state: integer. this will fix the random spectrogram selection
         debug=0: (optional) : if debug=1, messages will be printed during execution
             which can be helpful for debugging
 
     Returns:
-        X is a nD numpy array containing all spectrograms appended together with the following dimensions (example):
+        X is a nD numpy array containing all spectrograms appended together with
+            the following dimensions (example):
         ( 256, 100000)
         where
             256 - number of spectral bands in each spectrogram
@@ -506,8 +546,7 @@ def get_all_speech_as_one_mel(num_spectrograms=10000, num_speaker = 0, where_to_
     if (debug) : print (f"where_to_get_training_data={where_to_get_training_data}")
 
     if (where_to_get_training_data == "not specified"):
-        BASE_DIR = get_base_dir(working_in_google_colab=working_in_google_colab)
-        AUDIO_DIR = os.path.join(BASE_DIR, 'wav48')
+        AUDIO_DIR = get_base_dir(working_in_google_colab=working_in_google_colab)
     else:
         AUDIO_DIR = where_to_get_training_data
 
@@ -588,6 +627,42 @@ def get_all_speech_as_one_mel(num_spectrograms=10000, num_speaker = 0, where_to_
     print (f"total_sg.shape = {total_sg.shape} ")
     return total_sg, sr
 
+###############################################################################
+#          convert data from spectrograms to a series of 256x256 images
+###############################################################################
+
+def spectrogram_2_series_of_images(sg, debug=0):
+    from tensorflow.keras.backend import expand_dims
+
+    #calculate number of 256x256 images to split SG in
+    numImages = int(sg.shape[1]/256)
+    #reduce the length of SG so that it is evenly divisible by 256 - then it can be nicely reshaped
+    sg_for_reshape = sg[:,0:numImages*256 ]
+    if (debug):
+        print(f"inp_long_for_reshape.shape={sg_for_reshape.shape}")
+
+    sg_reshaped = sg_for_reshape.reshape(256, 256, numImages)
+    #sg_reshaped has dimensions (n_x, n_y, n_image). We need shape
+    # (n_image, n_x, n_y) for tensorflow input
+    #use swapaxes method to achieve the correct shape
+    sg_reshaped_out = sg_reshaped.swapaxes(0, 2).swapaxes(1,2)
+
+    #Convolutional Neural Network models need to be fed with images
+    # whose last dimension is the number of channels
+    #The shape of tensors fed into ***ConvNets*** is the following:
+    # `(NUMBER_OF_IMAGES, HEIGHT, WIDTH, CHANNELS)`
+    #add 1 channel as the last dimension
+    sg_reshaped_out = expand_dims(sg_reshaped_out, axis=-1)
+
+
+    if (debug):
+        print(f"sg_reshaped_out.shape={sg_reshaped_out.shape}")
+
+
+    return sg_reshaped_out
+
+
+
 
 ###############################################################################
 #                    train test split
@@ -624,6 +699,150 @@ def split_spectrogram_in_train_and_test (spectrogram,
     test_sg = spectrogram.copy()
     test_sg = test_sg[:, n_timesteps_train:n_timesteps]
     return train_sg, test_sg
+
+###############################################################################
+#           complete process of preprocessing for image processing NNs:
+###############################################################################
+def get_all_speech_as_series_of_images(where_to_get_training_data="not specified",
+	num_spectrograms=10000,
+	num_speaker = 0,
+	random_state=1,
+	debug = 0,
+    train_test_split=0.2,
+	working_in_google_colab = False):
+
+    """
+        Args:
+            where_to_get_training_data: string (location of directory with the wav files)
+            num_spectrograms: integer. If not specified, all spectrograms will be returned for the speaker
+            num_speaker: integer.
+            random_state: integer. this will fix the random spectrogram selection
+            debug=0: (optional) : if debug=1, messages will be printed during execution
+                which can be helpful for debugging
+            train_test_split: what % of the data will be in test (the rest will be in train)
+            working_in_google_colab: set thie to True if working in google colab
+
+        Returns:
+            data_train_X_series_of_images,
+            data_train_Y_series_of_images,
+            data_test_X_series_of_images,
+            data_test_Y_series_of_images
+
+        Example use:
+            data_train_X_series_of_images, \
+                data_train_Y_series_of_images, \
+                    data_test_X_series_of_images, \
+                        data_test_Y_series_of_images = \
+                pp.get_all_speech_as_series_of_images(num_spectrograms=20)
+        Algorithm:
+
+        -> read from HDD
+        -> convert to spectrograms
+        -> merge in one large spectrogram
+        -> train test split
+        -> degrade quality of both train and test
+        -> convert to log form
+        -> convert to a series of 256x256 images and convert to tensor
+        -> read from HDD, convert to spectrograms, merge in one large spectrogram
+    """
+
+    large_data, sr = get_all_speech_as_one_mel(
+		where_to_get_training_data     =where_to_get_training_data   ,
+		num_spectrograms               =num_spectrograms             ,
+		num_speaker                    =num_speaker                  ,
+		random_state                   =random_state                 ,
+		debug                          =0                        ,
+		working_in_google_colab        =working_in_google_colab
+		)
+#           -> train test split
+
+    train_sg, test_sg = split_spectrogram_in_train_and_test(spectrogram=large_data,
+                                                            test_ratio = train_test_split,
+                                                            debug=0)
+
+#           -> degrade quality of both train and test
+
+    degraded_train_sg =degrade_quaity(train_sg, sr )
+    degraded_test_sg  =degrade_quaity(test_sg, sr )
+
+#           -> convert to log form
+
+    train_X  = np.log( degraded_train_sg + 0.0000001)
+    train_Y  = np.log( train_sg + 0.0000001)
+    test_X   = np.log( degraded_test_sg + 0.0000001)
+    test_Y   = np.log( test_sg + 0.0000001)
+
+
+#           -> convert to a series of 256x256 images and convert to tensor
+
+    data_train_X_series_of_images =convert_to_tensor(spectrogram_2_series_of_images(train_X,  debug=0))
+    data_train_Y_series_of_images =convert_to_tensor(spectrogram_2_series_of_images(train_Y,  debug=0))
+    data_test_X_series_of_images = convert_to_tensor(spectrogram_2_series_of_images(test_X  ,  debug=0))
+    data_test_Y_series_of_images = convert_to_tensor(spectrogram_2_series_of_images(test_Y  ,  debug=0))
+
+    if (debug):
+        print(f"data_train_X_series_of_images.shape={data_train_X_series_of_images.shape}")
+        print(f"data_train_Y_series_of_images.shape={data_train_Y_series_of_images.shape}")
+        print(f" data_test_X_series_of_images.shape={ data_test_X_series_of_images.shape}")
+        print(f" data_test_Y_series_of_images.shape={ data_test_Y_series_of_images.shape}")
+
+    return data_train_X_series_of_images, \
+        data_train_Y_series_of_images, \
+        data_test_X_series_of_images, \
+        data_test_Y_series_of_images
+
+###############################################################################
+#           conversion from series of images into waveform
+###############################################################################
+def series_of_images_2_spectrogram (data_series_of_images, debug = 0):
+    #convert tensor to numpy array
+    #series_of_images = data_series_of_images.numpy()
+    series_of_images = data_series_of_images
+
+    """
+        Args:
+            data_series_of_images: np array or tensorflow data
+            debug=0: (optional) : if debug=1, messages will be printed during execution
+                which can be helpful for debugging
+
+        Returns:
+            sg: spectrogram
+
+        Example use:
+            predictions_sg = pp.series_of_images_2_spectrogram(predictions, debug=1)
+
+        Algorithm:
+
+            -> remove the last dimension (CHANNELS), leaving only 3 dimensions (NUMBER_OF_IMAGES, HEIGHT, WIDTH)
+            -> swap around the axes in preparation for reshaping the array from 3-D in 2-D
+            -> calculate number of timesteps
+            -> reshape the series of images into one spectrogram
+            -> convert from log form to the absolute value
+    """
+
+    if (debug):
+        print (f"series_of_images.shape={series_of_images.shape}")
+
+    #remove the last dimension (CHANNELS), leaving only 3 dimensions (NUMBER_OF_IMAGES, HEIGHT, WIDTH)
+    series_of_images = np.squeeze(series_of_images, -1)
+    if (debug):
+        print (f"after squeeze, series_of_images.shape={series_of_images.shape}")
+    num_images = series_of_images.shape[0]
+    #swap around the axes in preparation for reshaping the array from 3-D in 2-D
+    series_of_images = series_of_images.swapaxes(1, 2).swapaxes(0,2)
+
+    #calculate number of timesteps
+
+    num_timesteps = num_images*256
+
+    #reshape the series of images into one spectrogram
+    sg = series_of_images.reshape(256, num_timesteps)
+
+    #convert from log form to the absolute value
+
+    sg  = np.exp( sg ) - 0.0000001
+    return  sg
+
 
 
 #test some of the methods

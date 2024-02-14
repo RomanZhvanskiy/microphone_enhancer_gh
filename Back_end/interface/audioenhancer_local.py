@@ -349,10 +349,11 @@ def pred_for_api(where_to_find_bad_audio="not specified",
     where_to_find_good_audio = find_a_place_for_good_audio()
 
     #return
+    print ("############pred_for_api is working###################")
 
     debug = 1
     if (debug):
-        with open("debug_dump.txt", "w") as file1:
+        with open("debug_dump2.txt", "w") as file1:
             # Writing data to a file
             file1.write("pred_for_api reporting \n")
             file1.write(f"spec_and_sr = {spec_and_sr}  \n")
