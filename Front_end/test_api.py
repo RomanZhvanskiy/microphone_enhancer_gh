@@ -6,7 +6,7 @@ import os
 import requests
 import streamlit as st
 
-url = "https://micenhancerapi-3t3dih6maa-oa.a.run.app/" # "https://micenhancerapi-3t3dih6maa-oa.a.run.app/", "http://127.0.0.1:8000/"
+url =  "http://127.0.0.1:8000/" #"https://micenhancerapi-3t3dih6maa-oa.a.run.app/" # "https://micenhancerapi-3t3dih6maa-oa.a.run.app/", "http://127.0.0.1:8000/"
 upload_url = url + 'upload_file'
 serve_out_url = url + 'audio_out'
 
