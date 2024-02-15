@@ -1,5 +1,5 @@
 # notebooks
-#tensorflow
+tensorflow==2.14.0
 
 # audio_preprocessing module
 matplotlib
@@ -13,3 +13,9 @@ torchaudio
 fastapi
 uvicorn
 python-multipart
+
+pandas
+numpy
+scikit-learn
+IPython
+scikit-image

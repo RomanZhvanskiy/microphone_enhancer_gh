@@ -23,6 +23,7 @@ import  IPython
 #from tensorflow.keras import callbacks
 from keras.callbacks import EarlyStopping
 from keras.callbacks import BackupAndRestore
+from params import *
 
 
 import shutil #for copying files
@@ -99,21 +100,24 @@ from ml_logic.model  import train_model, \
 
 
 
-
-from params import *
+IN_DOCKER_KEY = os.environ.get('AM_I_IN_A_DOCKER_CONTAINER', False)
 
 
 #############################################################
 #            subroutines to provide directory names
 #############################################################
 def find_a_place_for_trained_model(enhancer="microphone_enhancer_gh/autoencoder_10_256"):
-    folder_name = os.path.dirname(os.path.realpath(__file__))
-    folder_name = folder_name.replace(\
-                   "/microphone_enhancer_gh/Back_end/interface",     \
-                   f"/microphone_enhancer_gh/{MODEL_SUBFOLDER}/{enhancer}")
-    folder_name = folder_name.replace("/freshly_trained_model/", "/")#remove 1 directlry layer
 
-    folder_name = folder_name.replace("//", "/").replace("//", "/")
+    if IN_DOCKER_KEY:
+        folder_name = f"pretrained_models/{enhancer}"
+    else:
+        folder_name = os.path.dirname(os.path.realpath(__file__))
+        folder_name = folder_name.replace(\
+                    "/microphone_enhancer_gh/Back_end/interface",     \
+                    f"/microphone_enhancer_gh/{MODEL_SUBFOLDER}/{enhancer}")
+        folder_name = folder_name.replace("/freshly_trained_model/", "/")#remove 1 directlry layer
+
+        folder_name = folder_name.replace("//", "/").replace("//", "/")
     return folder_name
 
 def find_a_place_for_training_data ():
@@ -134,20 +138,27 @@ def find_a_place_for_postprocessed_training_data ():
     return folder_name
 
 def find_a_place_for_bad_audio ():
-    folder_name = os.path.dirname(os.path.realpath(__file__))
-    folder_name = folder_name.replace(\
-                       "/microphone_enhancer_gh/Back_end/interface",     \
-                       f"/microphone_enhancer_gh/{BAD_QUALITY_FILE}")
-    folder_name = folder_name.replace("//", "/").replace("//", "/")
+    if IN_DOCKER_KEY:
+        folder_name = "../Data/audio_data/audio_in/good_quality.wav"
+    else:
+        folder_name = os.path.dirname(os.path.realpath(__file__))
+        folder_name = folder_name.replace(\
+                        "/microphone_enhancer_gh/Back_end/interface",     \
+                        f"/microphone_enhancer_gh/{BAD_QUALITY_FILE}")
+        folder_name = folder_name.replace("//", "/").replace("//", "/")
     return folder_name
 
 def find_a_place_for_good_audio ():
-    folder_name = os.path.dirname(os.path.realpath(__file__))
-    folder_name = folder_name.replace(\
-                   "/microphone_enhancer_gh/Back_end/interface",     \
-                   f"/microphone_enhancer_gh/{GOOD_QUALITY_FILE}")
+    if IN_DOCKER_KEY:
+        folder_name = "../Data/audio_data/audio_out/good_quality.wav"
+    else:
+        folder_name = os.path.dirname(os.path.realpath(__file__))
+        folder_name = folder_name.replace(\
+                    "/microphone_enhancer_gh/Back_end/interface",     \
+                    f"/microphone_enhancer_gh/{GOOD_QUALITY_FILE}")
 
-    folder_name = folder_name.replace("//", "/").replace("//", "/")
+        folder_name = folder_name.replace("//", "/").replace("//", "/")
+    #folder_name = "/prod/Data/audio_data/audio_out/good_quality.wav" ## changed for testing the container
     return folder_name
 
 
@@ -277,10 +288,12 @@ def pred(test_string="none",
 
     where_to_save_trained_model = find_a_place_for_trained_model(enhancer=enhancer)
 
-    if not os.path.exists(where_to_save_trained_model):
-        print(f'The file {where_to_save_trained_model} does not exist.' + \
-            ' Please train the model before making predictions.')
-        return
+
+
+    # if not os.path.exists(where_to_save_trained_model):
+    #     print(f'The file {where_to_save_trained_model} does not exist.' + \
+    #         ' Please train the model before making predictions.')
+    #     return
 
 
     model = load_model(where_to_save_trained_model)
