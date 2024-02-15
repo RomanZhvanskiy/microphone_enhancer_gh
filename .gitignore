@@ -23,6 +23,22 @@ Data/audio_data/audio_out/*
 Data/raw_data/*
 !Data/raw_data/.placeholder
 
+Data/mirnet_training/*
+
+Data/mirnet_training_data_spectrograms/eval15/high/*
+!Data/mirnet_training_data_spectrograms/eval15/high/.placeholder
+
+Data/mirnet_training_data_spectrograms/eval15/low/*
+!Data/mirnet_training_data_spectrograms/eval15/low/.placeholder
+
+Data/mirnet_training_data_spectrograms/our485/high/*
+!Data/mirnet_training_data_spectrograms/our485/high/.placeholder
+
+Data/mirnet_training_data_spectrograms/our485/low/*
+!Data/mirnet_training_data_spectrograms/our485/low/.placeholder
+
+
+
 autoencoder_*
 *.wav
 

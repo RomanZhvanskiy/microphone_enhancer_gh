@@ -791,6 +791,11 @@ def get_all_speech_as_series_of_images(where_to_get_training_data="not specified
         data_test_X_series_of_images, \
         data_test_Y_series_of_images
 
+
+
+
+
+
 ###############################################################################
 #           conversion from series of images into waveform
 ###############################################################################
