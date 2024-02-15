@@ -12,6 +12,6 @@ TRAINING_DATA_SUBFOLDER = "/Data/raw_data/VCTK-Corpus/wav48"
 POSTPROCESSED_TRAINING_DATA_SUBFOLDER = "/Data/postprocessed_training_data"
 
 DEFAULT_MODEL_TYPE = "microphone_enhancer_gh/autoencoder_10_256"
-MODEL_SUBFOLDER = "/Data/pretrained_models/freshly_trained_model"
+MODEL_SUBFOLDER = "/Back_end/pretrained_models/freshly_trained_model"
 BAD_QUALITY_FILE  = "/Data/audio_data/audio_in/bad_quality_.wav"
 GOOD_QUALITY_FILE = "/Data/audio_data/audio_out/good_quality.wav"

@@ -1,9 +1,29 @@
-## BUILD DOCKER IMAGE ##
+## BUILD LOCAL DOCKER IMAGE ##
 docker_build_dev:
 	docker build --tag=micenhancer_api:dev .
 
 docker_run:
 	docker run -it -e PORT=8000 -p 8000:8000 micenhancer_api:dev
+
+
+## DOCKER FOR THE CLOUD !! IMPORTANT - CHANGE lofty-door-406712 TO YOU GOOGLE PROJECT NAME
+
+docker_cloud_build:
+	docker build -t europe-west6-docker.pkg.dev/lofty-door-406712/micenhancer/micenhancer_api:test .
+
+#run locally to test
+docker_cloud_run_loc:
+	docker run -e PORT=8000 -p 8000:8000 europe-west6-docker.pkg.dev/lofty-door-406712/micenhancer/micenhancer_api:test
+
+docker_cloud_push:
+	docker push europe-west6-docker.pkg.dev/lofty-door-406712/micenhancer/micenhancer_api:test
+
+docker_cloud_run:
+	gcloud run deploy --image europe-west6-docker.pkg.dev/lofty-door-406712/micenhancer/micenhancer_api:test --memory 4Gi --region europe-west6 --min-instances 1
+
+docker_cloud_stop:
+	gcloud run services delete micenhancerapi
+
 
 ## RUN API + FE LOCALLY ##
 api_fe:
