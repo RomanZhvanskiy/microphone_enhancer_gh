@@ -19,7 +19,7 @@ docker_cloud_push:
 	docker push europe-west6-docker.pkg.dev/lofty-door-406712/micenhancer/micenhancer_api:test
 
 docker_cloud_run:
-	gcloud run deploy --image europe-west6-docker.pkg.dev/lofty-door-406712/micenhancer/micenhancer_api:test --memory 4Gi --region europe-west6 --min-instances 1
+	gcloud run deploy --image europe-west6-docker.pkg.dev/lofty-door-406712/micenhancer/micenhancer_api:test --memory 8Gi --region europe-west6 --min-instances 1 --cpu 8 --timeout 600
 
 docker_cloud_stop:
 	gcloud run services delete micenhancerapi
