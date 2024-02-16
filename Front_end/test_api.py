@@ -41,7 +41,7 @@ if uploaded_file is not None:
     with col4:
         req = urllib.request.urlopen(os.path.join(serve_out_url, cleaned['cleaned_file_name'])).read()
         st.audio(req)
-        #st.audio(os.path.join(serve_out_url, cleaned['cleaned_file_name']), format="audio/wav")
+        #st.audio(os.path.join(serve_out_url, cleaned['cleaned_file_name']), format="audio/wav") #
     col5, col6 = st.columns(2, gap='medium')
     with col5:
         with Image.open(requests.get((os.path.join(serve_in_url, cleaned['cleaned_file_name']+'.jpg')), stream=True).raw) as image:
