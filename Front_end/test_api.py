@@ -1,5 +1,5 @@
 import os
-import time
+import urllib.request
 import requests
 from PIL import Image
 import streamlit as st
